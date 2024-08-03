@@ -7,9 +7,12 @@ import {
   VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
+import ProductsTable from './ProductsTable';
+
 const { Header, Sider, Content } = Layout;
-const AppLayout = ({content}) => {
+const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [selected, setSelected] = useState('1');
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -21,15 +24,27 @@ const AppLayout = ({content}) => {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={['1']}
+          defaultSelectedKeys={selected}
+          selectedKeys={selected}
           items={[
             {
               key: '1',
               icon: <UserOutlined />,
               label: 'Products',
             },
+            {
+              key: '2',
+              icon: <UserOutlined />,
+              label: 'Orders',
+            },
+            {
+              key: '3',
+              icon: <UserOutlined />,
+              label: 'Profit',
+            },
     
           ]}
+          onClick={(v) => setSelected(v?.key)}
         />
       </Sider>
       <Layout>
@@ -59,7 +74,8 @@ const AppLayout = ({content}) => {
             borderRadius: borderRadiusLG,
           }}
         >
-         {content}
+      {selected === "1" ? <ProductsTable />: null}
+      {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
       </Layout>
     </Layout>
