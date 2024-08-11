@@ -8,6 +8,8 @@ import {
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import ProductsTable from './ProductsTable';
+import UploadComments from './UploadComments';
+import Comments from '../features/comments/Comments';
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -42,6 +44,11 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: 'Profit',
             },
+            {
+              key: '4',
+              icon: <UserOutlined />,
+              label: 'Comments',
+            },
     
           ]}
           onClick={(v) => setSelected(v?.key)}
@@ -75,6 +82,7 @@ const AppLayout = () => {
           }}
         >
       {selected === "1" ? <ProductsTable />: null}
+      {selected === "4" ? <Comments />: null}
       {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
       </Layout>
