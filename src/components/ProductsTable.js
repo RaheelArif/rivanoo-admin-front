@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Table, Button, Image } from 'antd';
-import { fetchProducts, deleteProduct } from '../features/products/productsSlice';
+import { fetchProducts, deleteProduct } from '../app/slices/productsSlice';
 import AddProductModal from './AddProductModal';
 
 const ProductsTable = () => {

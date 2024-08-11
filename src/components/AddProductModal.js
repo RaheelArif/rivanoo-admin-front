@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Modal, Form, Input, InputNumber, Button, Upload } from 'antd';
-import { addProduct } from '../features/products/productsSlice';
+import { addProduct } from '../app/slices/productsSlice';
 import { UploadOutlined } from '@ant-design/icons';
 
 const AddProductModal = ({ visible, onClose }) => {

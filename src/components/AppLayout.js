@@ -10,6 +10,7 @@ import { Button, Layout, Menu, theme } from 'antd';
 import ProductsTable from './ProductsTable';
 import UploadComments from './UploadComments';
 import Comments from '../features/comments/Comments';
+import OrderProductTable from './OrderProductTable';
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -49,6 +50,11 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: 'Comments',
             },
+            {
+              key: '5',
+              icon: <UserOutlined />,
+              label: 'order Products',
+            },
     
           ]}
           onClick={(v) => setSelected(v?.key)}
@@ -83,6 +89,7 @@ const AppLayout = () => {
         >
       {selected === "1" ? <ProductsTable />: null}
       {selected === "4" ? <Comments />: null}
+      {selected === "5" ? <OrderProductTable />: null}
       {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
       </Layout>
