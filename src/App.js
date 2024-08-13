@@ -1,13 +1,27 @@
 import React from "react";
 
-import AppLayout from "./components/AppLayout";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/home";
+import GermanyAppPage from "./pages/germany-app";
+import SwedenAppPage from "./pages/sweden-app";
+import "./index.css";
+import ResultPage from "./pages/result";
+import { Toaster } from 'react-hot-toast';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <AppLayout  />
+    <div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/germany-app" element={<GermanyAppPage />} />
+          <Route path="/sweden-app" element={<SwedenAppPage />} />
+          <Route path="/result" element={<ResultPage />} />
+        </Routes>
+      </Router>
+      <Toaster />
     </div>
   );
-}
+};
 
 export default App;
