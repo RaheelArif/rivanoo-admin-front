@@ -11,6 +11,7 @@ import ProductsTable from './ProductsTable';
 import UploadComments from './UploadComments';
 import Comments from '../features/comments/Comments';
 import OrderProductTable from './OrderProductTable';
+import MobileProductTable from './MobileProductTable';
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -55,6 +56,11 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: 'order Products',
             },
+            {
+              key: '6',
+              icon: <UserOutlined />,
+              label: 'Upcoming Mobiles',
+            },
     
           ]}
           onClick={(v) => setSelected(v?.key)}
@@ -90,6 +96,7 @@ const AppLayout = () => {
       {selected === "1" ? <ProductsTable />: null}
       {selected === "4" ? <Comments />: null}
       {selected === "5" ? <OrderProductTable />: null}
+      {selected === "6" ? <MobileProductTable />: null}
       {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
       </Layout>
