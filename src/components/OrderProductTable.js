@@ -96,7 +96,7 @@ const OrderProductTable = () => {
       <Table columns={columns} dataSource={orderProducts} rowKey="_id" />
       <Modal
         title={editingProduct ? "Edit Order Product" : "Add Order Product"}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
       >

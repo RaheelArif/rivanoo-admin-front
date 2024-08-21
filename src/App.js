@@ -4,10 +4,9 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/home";
 import GermanyAppPage from "./pages/germany-app";
 import SwedenAppPage from "./pages/sweden-app";
-import "./index.css";
 import ResultPage from "./pages/result";
 import { Toaster } from 'react-hot-toast';
-
+import "./style.css"
 const App = () => {
   return (
     <div>
