@@ -4,12 +4,15 @@ body{
 }
 
 .red-row {
-    background-color: #ffcccc !important; /* Light red background */
+    background-color: #b80101 !important; /* Light red background */
+    color: white;
   }
   .green-row {
-    background-color: #b9fd67 !important; /* Light red background */
+    background-color: #118302 !important; /* Light red background */
+    color: white;
+
   }
   
   .yellow-row {
-    background-color: #f3fd67 !important; /* Light red background */
+    background-color: #eeff00 !important; /* Light red background */
   }

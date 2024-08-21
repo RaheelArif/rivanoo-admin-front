@@ -117,8 +117,8 @@ const MobileProductTable = () => {
       key: 'action',
       render: (text, record) => (
         <>
-          <Button onClick={() => showModal(record)} style={{ marginRight: 8 }}>Edit</Button>
-          <Button onClick={() => handleDelete(record._id)} danger>Delete</Button>
+          <Button type='primary' onClick={() => showModal(record)} style={{ marginRight: 8 }}>Edit</Button>
+          <Button  type='primary' onClick={() => handleDelete(record._id)} danger>Delete</Button>
         </>
       ),
     },
