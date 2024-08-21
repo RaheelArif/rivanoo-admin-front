@@ -6,4 +6,10 @@ body{
 .red-row {
     background-color: #ffcccc !important; /* Light red background */
   }
+  .green-row {
+    background-color: #b9fd67 !important; /* Light red background */
+  }
   
+  .yellow-row {
+    background-color: #f3fd67 !important; /* Light red background */
+  }

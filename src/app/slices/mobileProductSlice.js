@@ -6,7 +6,7 @@ let initialState = {
   items: [],
   status: "idle",
   error: null,
-  selectedStatus: "coming_soon",
+  selectedStatus: "",
   currentPage: 1,
   pageSize: 10,
 };

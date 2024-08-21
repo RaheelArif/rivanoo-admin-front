@@ -76,8 +76,14 @@ const MobileProductTable = () => {
     const releaseDate = moment(record.release_date);
     const daysDifference = releaseDate.diff(today, 'days');
 
-    if (daysDifference < 10) {
+    if (daysDifference < 10 && record.status ===  "coming_soon") {
       return 'red-row';
+    }
+    if (record.status ===  "ordered") {
+      return 'yellow-row';
+    }
+    if (record.status ===  "complete") {
+      return 'green-row';
     }
 
     return '';
