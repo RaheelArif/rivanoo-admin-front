@@ -12,6 +12,7 @@ import UploadComments from './UploadComments';
 import Comments from '../features/comments/Comments';
 import OrderProductTable from './OrderProductTable';
 import MobileProductTable from './MobileProductTable';
+import OnlineProductTable from './OnlineProductTable';
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -61,6 +62,12 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: 'Upcoming Mobiles',
             },
+            {
+              key: '7',
+              icon: <UserOutlined />,
+              label: 'Online(F , A ...)',
+            },
+            
     
           ]}
           onClick={(v) => setSelected(v?.key)}
@@ -97,6 +104,7 @@ const AppLayout = () => {
       {selected === "4" ? <Comments />: null}
       {selected === "5" ? <OrderProductTable />: null}
       {selected === "6" ? <MobileProductTable />: null}
+      {selected === "7" ? <OnlineProductTable />: null}
       {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
       </Layout>
