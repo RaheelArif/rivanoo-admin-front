@@ -38,17 +38,15 @@ const OnlineProductTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingProduct, setEditingProduct] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState("coming_soon");
 
   useEffect(() => {
     dispatch(
       fetchProducts({
         page: currentPage,
         size: pageSize,
-        status: selectedStatus,
       })
     );
-  }, [dispatch, currentPage, pageSize, selectedStatus]);
+  }, [dispatch, currentPage, pageSize]);
 
   useEffect(() => {
     if (error) {
@@ -83,10 +81,7 @@ const OnlineProductTable = () => {
     dispatch(deleteProduct(id));
   };
 
-  const handleStatusChange = (value) => {
-    setSelectedStatus(value);
-    dispatch(setStatusFilter(value));
-  };
+
 
   const handlePageChange = (page) => {
     dispatch(setPage(page));
@@ -223,16 +218,7 @@ const OnlineProductTable = () => {
 
   return (
     <>
-      <Select
-        defaultValue={selectedStatus}
-        style={{ marginBottom: 16 }}
-        onChange={handleStatusChange}
-      >
-        <Option value="coming_soon">Coming Soon</Option>
-        <Option value="ordered">Ordered</Option>
-        <Option value="complete">Complete</Option>
-        <Option value="canceled">Canceled</Option>
-      </Select>
+
       <Button
         type="primary"
         onClick={() => showModal()}
