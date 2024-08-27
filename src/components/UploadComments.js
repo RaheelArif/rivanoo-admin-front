@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { Upload, Button, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import { BASE_URL } from '../utils/appBaseUrl';
 
 const UploadFile = ({ setTableData }) => {
   const [file, setFile] = useState(null);
@@ -22,7 +23,7 @@ const UploadFile = ({ setTableData }) => {
       formData.append('file', file);
 
       try {
-        const response = await axios.post('http://localhost:5001/api/upload/comment', formData, {
+        const response = await axios.post(`${BASE_URL}/upload/comment`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

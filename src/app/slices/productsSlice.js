@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { BASE_URL } from '../../utils/appBaseUrl';
 
 const initialState = {
     products: [],
@@ -9,7 +10,7 @@ const initialState = {
 
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async (_, { rejectWithValue }) => {
     try {
-        const response = await axios.get('http://localhost:5001/api/products');
+        const response = await axios.get(`${BASE_URL}/products`);
         return response.data;
     } catch (error) {
         return rejectWithValue(error.response.data);
@@ -18,7 +19,7 @@ export const fetchProducts = createAsyncThunk('products/fetchProducts', async (_
 
 export const addProduct = createAsyncThunk('products/addProduct', async (product, { rejectWithValue }) => {
     try {
-        const response = await axios.post('http://localhost:5001/api/products', product);
+        const response = await axios.post(`${BASE_URL}/products`, product);
         return response.data;
     } catch (error) {
         return rejectWithValue(error.response.data);
@@ -27,7 +28,7 @@ export const addProduct = createAsyncThunk('products/addProduct', async (product
 
 export const updateProduct = createAsyncThunk('products/updateProduct', async (product, { rejectWithValue }) => {
     try {
-        const response = await axios.put(`http://localhost:5001/api/products/${product.id}`, product);
+        const response = await axios.put(`${BASE_URL}/products/${product.id}`, product);
         return response.data;
     } catch (error) {
         return rejectWithValue(error.response.data);
@@ -36,7 +37,7 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async (p
 
 export const deleteProduct = createAsyncThunk('products/deleteProduct', async (productId, { rejectWithValue }) => {
     try {
-        await axios.delete(`http://localhost:5001/api/products/${productId}`);
+        await axios.delete(`${BASE_URL}/products/${productId}`);
         return productId;
     } catch (error) {
         return rejectWithValue(error.response.data);

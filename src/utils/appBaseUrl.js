@@ -1,0 +1,1 @@
+export const BASE_URL = window.location.host.includes("localhost")? "http://localhost:5001/api": "https://rivanoo-dashboard-526bcc10cf40.herokuapp.com/api"

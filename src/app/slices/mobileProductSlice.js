@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { BASE_URL } from "../../utils/appBaseUrl";
 
 // Define async thunks for CRUD operations
 let initialState = {
@@ -14,7 +15,7 @@ let initialState = {
 export const fetchMobileProducts = createAsyncThunk(
   "mobileProducts/fetchMobileProducts",
   async ({ status, page = 1, size = 10 }) => {
-    const response = await axios.get(`http://localhost:5001/api/mobile_product`, {
+    const response = await axios.get(`${BASE_URL}/mobile_product`, {
       params: {
         status,
         page,
@@ -29,7 +30,7 @@ export const addMobileProduct = createAsyncThunk(
   "mobileProducts/addMobileProduct",
   async (mobileProduct) => {
     const response = await axios.post(
-      "http://localhost:5001/api/mobile_product",
+      `${BASE_URL}/mobile_product`,
       mobileProduct
     );
     return response.data;
@@ -40,7 +41,7 @@ export const updateMobileProduct = createAsyncThunk(
   "mobileProducts/updateMobileProduct",
   async ({ id, mobileProduct }) => {
     const response = await axios.put(
-      `http://localhost:5001/api/mobile_product/${id}`,
+      `${BASE_URL}/mobile_product/${id}`,
       mobileProduct
     );
     return response.data;
@@ -50,7 +51,7 @@ export const updateMobileProduct = createAsyncThunk(
 export const deleteMobileProduct = createAsyncThunk(
   "mobileProducts/deleteMobileProduct",
   async (id) => {
-    await axios.delete(`http://localhost:5001/api/mobile_product/${id}`);
+    await axios.delete(`${BASE_URL}/mobile_product/${id}`);
     return id;
   }
 );

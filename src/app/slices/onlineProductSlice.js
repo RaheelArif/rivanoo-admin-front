@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { BASE_URL } from '../../utils/appBaseUrl';
 
 export const fetchProducts = createAsyncThunk(
   'onlineProducts/fetchProducts',
   async ({ page, size, status }) => {
-    const response = await axios.get('http://localhost:5001/api/online/products', {
+    const response = await axios.get(`${BASE_URL}/online/products`, {
       params: { page, size, status },
     });
     return response.data;
@@ -14,7 +15,7 @@ export const fetchProducts = createAsyncThunk(
 export const addProduct = createAsyncThunk(
   'onlineProducts/addProduct',
   async (newProduct) => {
-    const response = await axios.post('http://localhost:5001/api/online/products', newProduct);
+    const response = await axios.post(`${BASE_URL}/online/products`, newProduct);
     return response.data;
   }
 );
@@ -22,7 +23,7 @@ export const addProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
   'onlineProducts/updateProduct',
   async ({ id, updatedProduct }) => {
-    const response = await axios.put(`http://localhost:5001/api/online/products/${id}`, updatedProduct);
+    const response = await axios.put(`${BASE_URL}/online/products/${id}`, updatedProduct);
     return response.data;
   }
 );
@@ -30,7 +31,7 @@ export const updateProduct = createAsyncThunk(
 export const deleteProduct = createAsyncThunk(
   'onlineProducts/deleteProduct',
   async (id) => {
-    await axios.delete(`http://localhost:5001/api/online/products/${id}`);
+    await axios.delete(`${BASE_URL}/online/products/${id}`);
     return id;
   }
 );

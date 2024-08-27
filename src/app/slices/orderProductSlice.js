@@ -1,24 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { BASE_URL } from '../../utils/appBaseUrl';
 
 // Define async thunks for CRUD operations
 export const fetchOrderProducts = createAsyncThunk('orderProducts/fetchOrderProducts', async () => {
-  const response = await axios.get('http://localhost:5001/api/order_product');
+  const response = await axios.get(`${BASE_URL}/order_product`);
   return response.data;
 });
 
 export const addOrderProduct = createAsyncThunk('orderProducts/addOrderProduct', async (orderProduct) => {
-  const response = await axios.post('http://localhost:5001/api/order_product', orderProduct);
+  const response = await axios.post(`${BASE_URL}/order_product`, orderProduct);
   return response.data;
 });
 
 export const updateOrderProduct = createAsyncThunk('orderProducts/updateOrderProduct', async ({ id, orderProduct }) => {
-  const response = await axios.put(`http://localhost:5001/api/order_product/${id}`, orderProduct);
+  const response = await axios.put(`${BASE_URL}/order_product/${id}`, orderProduct);
   return response.data;
 });
 
 export const deleteOrderProduct = createAsyncThunk('orderProducts/deleteOrderProduct', async (id) => {
-  await axios.delete(`http://localhost:5001/api/order_product/${id}`);
+  await axios.delete(`${BASE_URL}/order_product/${id}`);
   return id;
 });
 
