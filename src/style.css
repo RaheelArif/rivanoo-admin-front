@@ -21,3 +21,6 @@ body {
   .yellow-row {
     background-color: #eeff00 !important; /* Light red background */
   }
+  .ant-table-wrapper{
+    overflow-x: auto;
+  }

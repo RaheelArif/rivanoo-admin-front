@@ -81,8 +81,6 @@ const OnlineProductTable = () => {
     dispatch(deleteProduct(id));
   };
 
-
-
   const handlePageChange = (page) => {
     dispatch(setPage(page));
   };
@@ -95,12 +93,12 @@ const OnlineProductTable = () => {
       title: "Post this Products",
       dataIndex: "01",
       key: "02",
-      render: (image) => (
+      render: (image, row) => (
         <div>
-          <Button>Fyndiq</Button>
-          <Button>amazon</Button>
-          <Button>shopify</Button>
-          <Button>cdon</Button>
+          <Button onClick={() => console.log(row)}>Fyndiq</Button>
+          <Button onClick={() => console.log(row)}>amazon</Button>
+          <Button onClick={() => console.log(row)}>shopify</Button>
+          <Button onClick={() => console.log(row)}>cdon</Button>
         </div>
       ),
     },
@@ -218,7 +216,6 @@ const OnlineProductTable = () => {
 
   return (
     <>
-
       <Button
         type="primary"
         onClick={() => showModal()}
@@ -268,15 +265,41 @@ const OnlineProductTable = () => {
             <InputNumber />
           </Form.Item>
 
-          <Form.Item
-            name="categories"
-            label="Categories"
-            rules={[
-              { required: true, message: "Please input the categories!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+          <Form.List name="categories">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, fieldKey, ...restField }) => (
+                  <Space
+                    key={key}
+                    style={{ display: "flex", marginBottom: 8 }}
+                    align="baseline"
+                  >
+                    <Form.Item
+                      {...restField}
+                      name={[name]}
+                      fieldKey={[fieldKey]}
+                      rules={[
+                        { required: true, message: "Please input a category!" },
+                      ]}
+                    >
+                      <Input placeholder="Category" />
+                    </Form.Item>
+                    <MinusCircleOutlined onClick={() => remove(name)} />
+                  </Space>
+                ))}
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    Add Category
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
 
           <Form.Item
             name="status"
@@ -284,10 +307,7 @@ const OnlineProductTable = () => {
             rules={[{ required: true, message: "Please select the status!" }]}
           >
             <Select>
-              <Option value="coming_soon">Coming Soon</Option>
-              <Option value="ordered">Ordered</Option>
-              <Option value="complete">Complete</Option>
-              <Option value="canceled">Canceled</Option>
+              <Option value="coming_soon">for sale</Option>
             </Select>
           </Form.Item>
 
