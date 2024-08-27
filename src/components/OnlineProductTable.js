@@ -11,6 +11,7 @@ import {
   Pagination,
   Space,
   InputNumber,
+  Checkbox
 } from "antd";
 import {
   fetchProducts,
@@ -19,11 +20,19 @@ import {
   deleteProduct,
   setPage,
   setPageSize,
-  setStatusFilter,
+  
 } from "../app/slices/onlineProductSlice";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
+const { Group: CheckboxGroup } = Checkbox;
+
+const marketOptions = [
+  { label: 'SE', value: 'SE', currency: 'SEK' },
+  { label: 'NO', value: 'NO', currency: 'NOK' },
+  { label: 'DK', value: 'DK', currency: 'DKK' },
+  { label: 'FI', value: 'FI', currency: 'EUR' },
+];
 const OnlineProductTable = () => {
   const dispatch = useDispatch();
   const {
@@ -38,7 +47,44 @@ const OnlineProductTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedMarkets, setSelectedMarkets] = useState([]);
 
+  const handleMarketChange = (checkedValues) => {
+    setSelectedMarkets(checkedValues);
+  
+    // Get the current values of the price and original_price arrays from the form
+    const currentPrices = form.getFieldValue('price') || [];
+    const currentOriginalPrices = form.getFieldValue('original_price') || [];
+  
+    // Function to update price arrays based on selected markets
+    const updatePriceArray = (currentArray) => {
+      return checkedValues.map((market) => {
+        const existingPrice = currentArray.find((price) => price.market === market);
+        if (existingPrice) {
+          return existingPrice; // Keep the existing price object if it exists
+        }
+        const currency = marketOptions.find(option => option.value === market)?.currency || '';
+        return {
+          market,
+          value: {
+            amount: 0,
+            currency,
+          },
+        };
+      });
+    };
+  
+    const updatedPrices = updatePriceArray(currentPrices);
+    const updatedOriginalPrices = updatePriceArray(currentOriginalPrices);
+  
+    // Update the form with the new values
+    form.setFieldsValue({
+      markets: checkedValues,
+      price: updatedPrices,
+      original_price: updatedOriginalPrices,
+    });
+  };
+  
   useEffect(() => {
     dispatch(
       fetchProducts({
@@ -242,7 +288,16 @@ const OnlineProductTable = () => {
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
+        width={800}
+        className="top-20-modal"
       >
+          <CheckboxGroup
+        options={marketOptions}
+        value={selectedMarkets}
+        onChange={handleMarketChange}
+        style={{ marginBottom: 16 }}
+      />
+   <button onClick={() => console.log(form.getFieldValue())}>values</button>
         <Form form={form} layout="vertical">
           <Form.Item
             name="sku"
@@ -307,7 +362,9 @@ const OnlineProductTable = () => {
             rules={[{ required: true, message: "Please select the status!" }]}
           >
             <Select>
-              <Option value="coming_soon">for sale</Option>
+              <Option value="for sale">for sale</Option>
+              <Option value="paused">paused</Option>
+              
             </Select>
           </Form.Item>
 

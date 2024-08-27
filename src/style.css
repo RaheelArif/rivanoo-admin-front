@@ -24,3 +24,6 @@ body {
   .ant-table-wrapper{
     overflow-x: auto;
   }
+  .top-20-modal.ant-modal{
+    top: 20px;
+  }
