@@ -63,13 +63,8 @@ const GermanyAppPage = () => {
       <Helmet>
         <title>Upload File - Rivanoo</title>
       </Helmet>
-      {isModalVisible && (
-        <PasswordModalGermany
-          visible={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-        />
-      )}
-      {!isModalVisible && (
+
+
         <div className="mx:5 lg:mx-20">
           <div className="grid grid-cols-12">
             <div className="col-span-12">
@@ -144,7 +139,7 @@ const GermanyAppPage = () => {
             </div>
           </div>
         </div>
-      )}
+  
     </div>
   );
 };

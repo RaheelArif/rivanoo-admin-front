@@ -27,3 +27,9 @@ body {
   .top-20-modal.ant-modal{
     top: 20px;
   }
+  /* .ant-space-item{
+    width: 100%;
+  } */
+  .ant-col{
+    padding: 5px;
+  }
