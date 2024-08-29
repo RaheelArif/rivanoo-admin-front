@@ -534,11 +534,12 @@ const OnlineProductTable = () => {
                             rules={[
                               {
                                 required: true,
-                                message: "Please input the image URL!",
+                                message:
+                                  "Please input the image URL or upload an image!",
                               },
                             ]}
                           >
-                            <Input placeholder="Image URL" />
+                            <ImageUploadOrUrl />
                           </Form.Item>
                           <MinusCircleOutlined onClick={() => remove(name)} />
                         </Space>
