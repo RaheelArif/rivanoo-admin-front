@@ -24,6 +24,7 @@ import {
   setPageSize,
 } from "../app/slices/onlineProductSlice";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import axios from "axios";
 const { Option } = Select;
 
 const { Group: CheckboxGroup } = Checkbox;
@@ -34,6 +35,13 @@ const marketOptions = [
   { label: "DK", value: "DK", currency: "DKK" },
   { label: "FI", value: "FI", currency: "EUR" },
 ];
+// Map each market to a corresponding language (example mapping)
+const marketToLanguageMap = {
+  SE: "sv-SE",
+  NO: "nb-NO",
+  DK: "da-DK",
+  FI: "fi-FI",
+};
 const OnlineProductTable = () => {
   const dispatch = useDispatch();
   const {
@@ -53,56 +61,99 @@ const OnlineProductTable = () => {
   const handleMarketChange = (checkedValues) => {
     setSelectedMarkets(checkedValues);
 
-    // Get the current values of price, original_price, and shipping_time arrays from the form
+    // Get the current values of the arrays from the form
     const currentPrices = form.getFieldValue("price") || [];
     const currentOriginalPrices = form.getFieldValue("original_price") || [];
     const currentShippingTimes = form.getFieldValue("shipping_time") || [];
+    const currentTitles = form.getFieldValue("title") || [];
+    const currentDescriptions = form.getFieldValue("description") || [];
 
-    // Function to update price arrays based on selected markets
-    const updatePriceArray = (currentArray) => {
-      return checkedValues.map((market) => {
-        const existingPrice = currentArray.find(
-          (price) => price.market === market
-        );
-        if (existingPrice) {
-          return existingPrice; // Keep the existing price object if it exists
-        }
-        const currency =
-          marketOptions.find((option) => option.value === market)?.currency ||
-          "";
-        return {
-          market,
-          value: {
-            amount: 0,
-            currency,
-          },
-        };
-      });
-    };
+    // Update the price, original_price, shipping_time, title, and description arrays based on the selected markets
+    const updatedPrices = checkedValues.map((market) => {
+      const existingPrice = currentPrices.find(
+        (price) => price.market === market
+      );
+      if (existingPrice) {
+        return existingPrice; // Keep the existing price object if it exists
+      }
+      const currency =
+        marketOptions.find((option) => option.value === market)?.currency || "";
+      return {
+        market,
+        value: {
+          amount: 0,
+          currency,
+        },
+      };
+    });
 
-    // Function to update shipping_time array based on selected markets
-    const updateShippingTimeArray = () => {
-      return checkedValues.map((market) => {
-        const existingShippingTime = currentShippingTimes.find(
-          (time) => time.market === market
-        );
-        if (existingShippingTime) {
-          return existingShippingTime; // Keep the existing shipping time object if it exists
-        }
-        return {
-          market,
-          min: 1, // Default min value
-          max: 3, // Default max value
-        };
-      });
-    };
+    const updatedOriginalPrices = checkedValues.map((market) => {
+      const existingOriginalPrice = currentOriginalPrices.find(
+        (price) => price.market === market
+      );
+      if (existingOriginalPrice) {
+        return existingOriginalPrice; // Keep the existing original_price object if it exists
+      }
+      const currency =
+        marketOptions.find((option) => option.value === market)?.currency || "";
+      return {
+        market,
+        value: {
+          amount: 0,
+          currency,
+        },
+      };
+    });
 
-    // Update the form fields with the updated arrays
+    const updatedShippingTimes = checkedValues.map((market) => {
+      const existingShippingTime = currentShippingTimes.find(
+        (time) => time.market === market
+      );
+      if (existingShippingTime) {
+        return existingShippingTime; // Keep the existing shipping_time object if it exists
+      }
+      return {
+        market,
+        min: 1,
+        max: 3,
+      };
+    });
+
+    const updatedTitles = checkedValues.map((market) => {
+      const language = marketToLanguageMap[market]; // Map market to a specific language
+      const existingTitle = currentTitles.find(
+        (title) => title.language === language
+      );
+      if (existingTitle) {
+        return existingTitle; // Keep the existing title object if it exists
+      }
+      return {
+        language,
+        value: "", // Add the default title or leave it blank for the user to fill in
+      };
+    });
+
+    const updatedDescriptions = checkedValues.map((market) => {
+      const language = marketToLanguageMap[market]; // Map market to a specific language
+      const existingDescription = currentDescriptions.find(
+        (description) => description.language === language
+      );
+      if (existingDescription) {
+        return existingDescription; // Keep the existing description object if it exists
+      }
+      return {
+        language,
+        value: "", // Add the default description or leave it blank for the user to fill in
+      };
+    });
+
     form.setFieldsValue({
       markets: checkedValues,
-      price: updatePriceArray(currentPrices),
-      original_price: updatePriceArray(currentOriginalPrices),
-      shipping_time: updateShippingTimeArray(),
+      price: updatedPrices,
+      original_price: updatedOriginalPrices,
+      shipping_time: updatedShippingTimes,
+      title: updatedTitles,
+      description: updatedDescriptions,
     });
   };
 
@@ -155,6 +206,71 @@ const OnlineProductTable = () => {
   const handlePageSizeChange = (current, size) => {
     dispatch(setPageSize(size));
   };
+  const getLanguageFromMarket = (market) => {
+    switch (market) {
+      case "SE":
+        return "SV"; // Swedish
+      case "NO":
+        return "NB"; // Norwegian
+      case "DK":
+        return "DA"; // Danish
+      case "FI":
+        return "FI"; // Finnish
+      default:
+        return "EN"; // English as fallback
+    }
+  };
+  const translateText = async (text, targetLanguage) => {
+    const response = await axios.post(
+      "https://api-free.deepl.com/v2/translate",
+      null,
+      {
+        params: {
+          auth_key: "495b011a-1b6c-4289-b4b5-afa97322c71e:fx", // Replace with your DeepL API key
+          text,
+          target_lang: targetLanguage,
+        },
+      }
+    );
+    return response.data.translations[0].text;
+  };
+  const handleDescriptionChange = async (value, form, fieldName) => {
+    form.setFieldsValue({
+      [fieldName]: value, // Set the initial input
+    });
+
+    const selectedMarkets = form.getFieldValue("markets");
+    const translationPromises = selectedMarkets.map(async (market) => {
+      const language = getLanguageFromMarket(market); // Function to map market to language code
+      const translatedText = await translateText(value, language);
+      return { language, value: translatedText };
+    });
+
+    const translatedDescriptions = await Promise.all(translationPromises);
+
+    form.setFieldsValue({
+      description: translatedDescriptions, // Update with translated descriptions
+    });
+  };
+  const handleTitleChange = async (value, form, fieldName) => {
+    form.setFieldsValue({
+      [fieldName]: value, // Set the initial input
+    });
+
+    const selectedMarkets = form.getFieldValue("markets");
+    const translationPromises = selectedMarkets.map(async (market) => {
+      const language = getLanguageFromMarket(market); // Function to map market to language code
+      const translatedText = await translateText(value, language);
+      return { language, value: translatedText };
+    });
+
+    const translatedtitle = await Promise.all(translationPromises);
+
+    form.setFieldsValue({
+      title: translatedtitle, 
+    });
+  };
+
   const columns = [
     {
       title: "Post this Products",
@@ -481,22 +597,18 @@ const OnlineProductTable = () => {
                             style={{ width: "100%" }}
                           >
                             <Input
+                              onBlur={(e) =>
+                                handleTitleChange(e.target.value, form, [
+                                  name,
+                                  "value",
+                                ])
+                              }
                               style={{ width: "100%" }}
                               placeholder="Title"
                             />
                           </Form.Item>
-                          <MinusCircleOutlined onClick={() => remove(name)} />
                         </Space>
                       ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          icon={<PlusOutlined />}
-                        >
-                          Add Title
-                        </Button>
-                      </Form.Item>
                     </>
                   )}
                 </Form.List>
@@ -509,7 +621,7 @@ const OnlineProductTable = () => {
                 name="description"
                 label="Description"
               >
-                <Form.List style={{ width: "100%" }} name="description">
+                <Form.List name="description">
                   {(fields, { add, remove }) => (
                     <>
                       {fields.map(({ key, name, fieldKey, ...restField }) => (
@@ -549,22 +661,18 @@ const OnlineProductTable = () => {
                             style={{ width: "100%" }}
                           >
                             <Input.TextArea
+                              onBlur={(e) =>
+                                handleDescriptionChange(e.target.value, form, [
+                                  name,
+                                  "value",
+                                ])
+                              }
                               style={{ width: "100%" }}
                               placeholder="Description"
                             />
                           </Form.Item>
-                          <MinusCircleOutlined onClick={() => remove(name)} />
                         </Space>
                       ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          icon={<PlusOutlined />}
-                        >
-                          Add Description
-                        </Button>
-                      </Form.Item>
                     </>
                   )}
                 </Form.List>
