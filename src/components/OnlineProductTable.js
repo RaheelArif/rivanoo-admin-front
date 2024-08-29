@@ -26,6 +26,8 @@ import {
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import ImageUploadOrUrl from "./ImageUploadOrUrl";
+import { BASE_URL } from "../utils/appBaseUrl";
+
 const { Option } = Select;
 
 const { Group: CheckboxGroup } = Checkbox;
@@ -271,7 +273,25 @@ const OnlineProductTable = () => {
       title: translatedtitle,
     });
   };
+  const [legacyProducts, setLegacyProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    // Fetch legacy products on component mount
+    fetchLegacyProducts();
+  }, []);
+
+  const fetchLegacyProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${BASE_URL}/legacy_products?page=1&size=5`);
+      setLegacyProducts(response.data.legacyProducts);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch legacy products", error);
+      setLoading(false);
+    }
+  };
   const columns = [
     {
       title: "Post this Products",
@@ -488,6 +508,34 @@ const OnlineProductTable = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
+              <Form.Item
+                label="Legacy Product ID"
+                name="legacy_product_id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select a legacy product ID",
+                  },
+                ]}
+              >
+                <Select
+                  showSearch
+                  placeholder="Select a legacy product ID"
+                  optionFilterProp="children"
+                  loading={loading}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {legacyProducts.map((product) => (
+                    <Option key={product._id} value={product.legacy_product_id}>
+                      {product.legacy_product_id}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={24}>
               {" "}
               <Form.Item
                 name="quantity"

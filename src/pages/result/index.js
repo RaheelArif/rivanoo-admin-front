@@ -50,10 +50,10 @@ const ResultPage = () => {
             <div className="w-full flex flex-col justify-center items-center mt-[50px] mb-[30px]">
               <div className="w-full flex flex-col justify-center items-center">
                 <img
-                  src={"/assets/images/rivanoo_logo.png"}
+                  src={"/assets/images/logo.jpeg"}
                   alt="Rivanoo Logo"
                   width={100}
-                  className="mb-10"
+                  className="mb-10 radius-20-img"
                 />
               </div>
               <h2 className="text-2xl lg:text-[2.5rem] text-center text-[#000] font-semibold m-0 mb-0.5">

@@ -33,3 +33,6 @@ body {
   .ant-col{
     padding: 5px;
   }
+  .radius-20-img{
+    border-radius: 20px ;
+  }

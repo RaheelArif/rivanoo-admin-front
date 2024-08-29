@@ -9,9 +9,10 @@ const HomePage = () => {
           <div className="w-full flex flex-row justify-center items-center mt-[50px] mb-[70px]">
             <div className="w-full flex justify-center items-center">
               <img
-                src={"/assets/images/rivanoo_logo.png"}
+                src={"/assets/images/logo.jpeg"}
                 alt="Rivanoo Logo"
                 width={100}
+                className="radius-20-img"
               />
             </div>
           </div>
