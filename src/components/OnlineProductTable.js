@@ -25,6 +25,7 @@ import {
 } from "../app/slices/onlineProductSlice";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
+import ImageUploadOrUrl from "./ImageUploadOrUrl";
 const { Option } = Select;
 
 const { Group: CheckboxGroup } = Checkbox;
@@ -267,7 +268,7 @@ const OnlineProductTable = () => {
     const translatedtitle = await Promise.all(translationPromises);
 
     form.setFieldsValue({
-      title: translatedtitle, 
+      title: translatedtitle,
     });
   };
 
@@ -506,11 +507,12 @@ const OnlineProductTable = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Please input the main image URL!",
+                    message:
+                      "Please input the main image URL or upload an image!",
                   },
                 ]}
               >
-                <Input />
+                <ImageUploadOrUrl />
               </Form.Item>
             </Col>
             <Col span={12}>
