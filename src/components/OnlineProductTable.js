@@ -27,23 +27,24 @@ import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import ImageUploadOrUrl from "./ImageUploadOrUrl";
 import { BASE_URL } from "../utils/appBaseUrl";
+import PostButtons from "./PostButtons";
 
 const { Option } = Select;
 
 const { Group: CheckboxGroup } = Checkbox;
 
 const marketOptions = [
-  { label: "SE", value: "SE", currency: "SEK" },
-  { label: "NO", value: "NO", currency: "NOK" },
-  { label: "DK", value: "DK", currency: "DKK" },
-  { label: "FI", value: "FI", currency: "EUR" },
+  { label: "SE", value: "sv-SE", currency: "SEK" },
+  { label: "NO", value: "nb-NO", currency: "NOK" },
+  { label: "DK", value: "da-DK", currency: "DKK" },
+  { label: "FI", value: "fi-FI", currency: "EUR" },
 ];
 // Map each market to a corresponding language (example mapping)
 const marketToLanguageMap = {
-  SE: "sv-SE",
-  NO: "nb-NO",
-  DK: "da-DK",
-  FI: "fi-FI",
+  "sv-SE": "sv-SE",
+  "nb-NO": "nb-NO",
+  "da-DK": "da-DK",
+  "fi-FI": "fi-FI",
 };
 const OnlineProductTable = () => {
   const dispatch = useDispatch();
@@ -211,13 +212,13 @@ const OnlineProductTable = () => {
   };
   const getLanguageFromMarket = (market) => {
     switch (market) {
-      case "SE":
+      case "sv-SE":
         return "SV"; // Swedish
-      case "NO":
+      case "nb-NO":
         return "NB"; // Norwegian
-      case "DK":
+      case "da-DK":
         return "DA"; // Danish
-      case "FI":
+      case "fi-FI":
         return "FI"; // Finnish
       default:
         return "EN"; // English as fallback
@@ -246,7 +247,7 @@ const OnlineProductTable = () => {
     const translationPromises = selectedMarkets.map(async (market) => {
       const language = getLanguageFromMarket(market); // Function to map market to language code
       const translatedText = await translateText(value, language);
-      return { language, value: translatedText };
+      return { language: market, value: translatedText };
     });
 
     const translatedDescriptions = await Promise.all(translationPromises);
@@ -264,7 +265,7 @@ const OnlineProductTable = () => {
     const translationPromises = selectedMarkets.map(async (market) => {
       const language = getLanguageFromMarket(market); // Function to map market to language code
       const translatedText = await translateText(value, language);
-      return { language, value: translatedText };
+      return { language: market, value: translatedText };
     });
 
     const translatedtitle = await Promise.all(translationPromises);
@@ -284,7 +285,9 @@ const OnlineProductTable = () => {
   const fetchLegacyProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}/legacy_products?page=1&size=5`);
+      const response = await axios.get(
+        `${BASE_URL}/legacy_products?page=1&size=5`
+      );
       setLegacyProducts(response.data.legacyProducts);
       setLoading(false);
     } catch (error) {
@@ -297,14 +300,7 @@ const OnlineProductTable = () => {
       title: "Post this Products",
       dataIndex: "01",
       key: "02",
-      render: (image, row) => (
-        <div>
-          <Button onClick={() => console.log(row)}>Fyndiq</Button>
-          <Button onClick={() => console.log(row)}>amazon</Button>
-          <Button onClick={() => console.log(row)}>shopify</Button>
-          <Button onClick={() => console.log(row)}>cdon</Button>
-        </div>
-      ),
+      render: (image, row) => <PostButtons record={row} />,
     },
     { title: "SKU", dataIndex: "sku", key: "sku" },
 
@@ -351,10 +347,15 @@ const OnlineProductTable = () => {
       title: "Description",
       dataIndex: "description",
       key: "description",
-      render: (descriptions) =>
-        descriptions
-          .map((description) => `${description.language}: ${description.value}`)
-          .join(", "),
+      render: (descriptions) => {
+        <div style={{maxHeight:"150px" , overflowY:"auto"}}>
+          {descriptions
+            .map(
+              (description) => `${description.language}: ${description.value}`
+            )
+            .join(", ")}
+        </div>;
+      },
     },
     {
       title: "Price",
@@ -483,8 +484,8 @@ const OnlineProductTable = () => {
                   placeholder="Select categories"
                   allowClear
                   options={[
-                    { label: "Category 1", value: "category1" },
-                    { label: "Category 2", value: "category2" },
+                    { label: "332", value: 332 },
+                    { label: "18333", value: 18333 },
                     { label: "Category 3", value: "category3" },
                     { label: "Category 4", value: "category4" },
                     { label: "Category 5", value: "category5" },
