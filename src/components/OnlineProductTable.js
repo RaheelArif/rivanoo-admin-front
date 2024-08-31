@@ -274,24 +274,23 @@ const OnlineProductTable = () => {
       title: translatedtitle,
     });
   };
-  const [legacyProducts, setLegacyProducts] = useState([]);
+  const [gtin, setgtin] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch legacy products on component mount
-    fetchLegacyProducts();
+    fetchgtin();
   }, []);
 
-  const fetchLegacyProducts = async () => {
+  const fetchgtin = async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${BASE_URL}/legacy_products?page=1&size=5`
+        `${BASE_URL}/gtin?page=1&size=5`
       );
-      setLegacyProducts(response.data.legacyProducts);
+      setgtin(response.data.gtins);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch legacy products", error);
+      console.error("Failed to fetch gtin", error);
       setLoading(false);
     }
   };
@@ -510,27 +509,27 @@ const OnlineProductTable = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                label="Legacy Product ID"
-                name="legacy_product_id"
+                label="GTIN"
+                name="gtin"
                 rules={[
                   {
                     required: true,
-                    message: "Please select a legacy product ID",
+                    message: "Please select a GTIN",
                   },
                 ]}
               >
                 <Select
                   showSearch
-                  placeholder="Select a legacy product ID"
+                  placeholder="Select a gtin product ID"
                   optionFilterProp="children"
                   loading={loading}
                   filterOption={(input, option) =>
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
                 >
-                  {legacyProducts.map((product) => (
-                    <Option key={product._id} value={product.legacy_product_id}>
-                      {product.legacy_product_id}
+                  {gtin.map((product) => (
+                    <Option key={product._id} value={product.gtin}>
+                      {product.gtin}
                     </Option>
                   ))}
                 </Select>

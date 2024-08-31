@@ -13,7 +13,7 @@ import Comments from "../features/comments/Comments";
 import OrderProductTable from "./OrderProductTable";
 import MobileProductTable from "./MobileProductTable";
 import OnlineProductTable from "./OnlineProductTable";
-import LegacyProductTable from "./LegacyProductTable";
+import GtinTable from "./GtinTable";
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -38,11 +38,7 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: "Products",
             },
-            {
-              key: "2",
-              icon: <UserOutlined />,
-              label: "Orders",
-            },
+    
             {
               key: "3",
               icon: <UserOutlined />,
@@ -71,7 +67,7 @@ const AppLayout = () => {
             {
               key: "8",
               icon: <UserOutlined />,
-              label: "Legacy Product Id",
+              label: "Gitn",
             },
           ]}
           onClick={(v) => setSelected(v?.key)}
@@ -109,7 +105,7 @@ const AppLayout = () => {
           {selected === "5" ? <OrderProductTable /> : null}
           {selected === "6" ? <MobileProductTable /> : null}
           {selected === "7" ? <OnlineProductTable /> : null}
-          {selected === "8" ? <LegacyProductTable /> : null}
+          {selected === "8" ? <GtinTable /> : null}
 
           {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>

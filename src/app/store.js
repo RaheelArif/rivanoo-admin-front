@@ -4,7 +4,7 @@ import orderProductReducer from "./slices/orderProductSlice";
 import mobileProductReducer from "./slices/mobileProductSlice";
 import onlineProductReducer from "./slices/onlineProductSlice";
 import passwordReducer from './slices/passwordSlice';
-import legacyProductReducer from './slices/legacyProductSlice';
+import gtinReducer from './slices/gtinSlice';
 export const store = configureStore({
   reducer: {
     products: productsReducer,
@@ -12,6 +12,6 @@ export const store = configureStore({
     mobileProducts: mobileProductReducer,
     onlineProducts: onlineProductReducer,
     password: passwordReducer,
-    legacyProduct: legacyProductReducer,
+    gtin: gtinReducer,
   },
 });
