@@ -34,17 +34,17 @@ const { Option } = Select;
 const { Group: CheckboxGroup } = Checkbox;
 
 const marketOptions = [
-  { label: "SE", value: "sv-SE", currency: "SEK" },
-  { label: "NO", value: "nb-NO", currency: "NOK" },
-  { label: "DK", value: "da-DK", currency: "DKK" },
-  { label: "FI", value: "fi-FI", currency: "EUR" },
+  { label: "SE", value: "SE", currency: "SEK" },
+  { label: "NO", value: "NO", currency: "NOK" },
+  { label: "DK", value: "DK", currency: "DKK" },
+  { label: "FI", value: "FI", currency: "EUR" },
 ];
 // Map each market to a corresponding language (example mapping)
 const marketToLanguageMap = {
-  "sv-SE": "sv-SE",
-  "nb-NO": "nb-NO",
-  "da-DK": "da-DK",
-  "fi-FI": "fi-FI",
+  SE: "sv-SE",
+  NO: "nb-NO",
+  DK: "da-DK",
+  FI: "fi-FI",
 };
 const OnlineProductTable = () => {
   const dispatch = useDispatch();
@@ -212,13 +212,13 @@ const OnlineProductTable = () => {
   };
   const getLanguageFromMarket = (market) => {
     switch (market) {
-      case "sv-SE":
+      case "SE":
         return "SV"; // Swedish
-      case "nb-NO":
+      case "NO":
         return "NB"; // Norwegian
-      case "da-DK":
+      case "DK":
         return "DA"; // Danish
-      case "fi-FI":
+      case "FI":
         return "FI"; // Finnish
       default:
         return "EN"; // English as fallback
@@ -247,7 +247,7 @@ const OnlineProductTable = () => {
     const translationPromises = selectedMarkets.map(async (market) => {
       const language = getLanguageFromMarket(market); // Function to map market to language code
       const translatedText = await translateText(value, language);
-      return { language: market, value: translatedText };
+      return { language: marketToLanguageMap[market], value: translatedText };
     });
 
     const translatedDescriptions = await Promise.all(translationPromises);
@@ -265,7 +265,7 @@ const OnlineProductTable = () => {
     const translationPromises = selectedMarkets.map(async (market) => {
       const language = getLanguageFromMarket(market); // Function to map market to language code
       const translatedText = await translateText(value, language);
-      return { language: market, value: translatedText };
+      return { language: marketToLanguageMap[market], value: translatedText };
     });
 
     const translatedtitle = await Promise.all(translationPromises);
@@ -284,9 +284,7 @@ const OnlineProductTable = () => {
   const fetchgtin = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${BASE_URL}/gtin?page=1&size=5`
-      );
+      const response = await axios.get(`${BASE_URL}/gtin?page=1&size=57&status=pending`);
       setgtin(response.data.gtins);
       setLoading(false);
     } catch (error) {
@@ -347,7 +345,7 @@ const OnlineProductTable = () => {
       dataIndex: "description",
       key: "description",
       render: (descriptions) => {
-        <div style={{maxHeight:"150px" , overflowY:"auto"}}>
+        <div style={{ maxHeight: "150px", overflowY: "auto" }}>
           {descriptions
             .map(
               (description) => `${description.language}: ${description.value}`
@@ -456,6 +454,16 @@ const OnlineProductTable = () => {
         </button>
         <Form form={form} layout="vertical">
           <Row>
+          <Col style={{display:'none'}} span={24}>
+              {" "}
+              <Form.Item
+                name="markets"
+                label="markets"
+                rules={[{ required: true, message: "Please input the market!" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
             <Col span={12}>
               {" "}
               <Form.Item
@@ -844,6 +852,65 @@ const OnlineProductTable = () => {
                   )}
                 </Form.List>
               </Form.Item>
+            </Col>
+            <Col style={{display:'none'}} span={24}>
+              <Form.List name="shipping_time">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, fieldKey, ...restField }) => (
+                      <div key={key}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "market"]}
+                          label="Market"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please input the market!",
+                            },
+                          ]}
+                        >
+                          <Input placeholder="e.g., SE" />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "min"]}
+                          label="Min Days"
+                          rules={[
+                            {
+                              required: true,
+                              message:
+                                "Please input the minimum shipping days!",
+                            },
+                          ]}
+                        >
+                          <Input type="number" placeholder="e.g., 1" />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "max"]}
+                          label="Max Days"
+                          rules={[
+                            {
+                              required: true,
+                              message:
+                                "Please input the maximum shipping days!",
+                            },
+                          ]}
+                        >
+                          <Input type="number" placeholder="e.g., 3" />
+                        </Form.Item>
+                        <Button type="danger" onClick={() => remove(name)}>
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()}>
+                      Add Shipping Time
+                    </Button>
+                  </>
+                )}
+              </Form.List>
             </Col>
           </Row>
         </Form>

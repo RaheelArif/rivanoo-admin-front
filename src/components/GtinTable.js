@@ -59,6 +59,11 @@ const GtinTable = () => {
       key: 'status',
     },
     {
+      title: 'Product Id',
+      dataIndex: 'product_id',
+      key: 'product_id',
+    },
+    {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
@@ -87,8 +92,7 @@ const GtinTable = () => {
         >
           <Option value="">All</Option>
           <Option value="pending">Pending</Option>
-          <Option value="approved">Approved</Option>
-          <Option value="rejected">Rejected</Option>
+          <Option value="complete">Complee</Option>
         </Select>
       </Space>
       <Table
