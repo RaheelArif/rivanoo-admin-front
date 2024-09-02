@@ -12,6 +12,7 @@ import {
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import ImageUploadOrUrl from "./ImageUploadOrUrl";
 const { Option } = Select;
+const MAX_IMAGES = 10;
 export default function OnlineProductForm({
   form,
   selectedMarkets,
@@ -140,7 +141,7 @@ export default function OnlineProductForm({
             label="Quantity"
             rules={[{ required: true, message: "Please input the quantity!" }]}
           >
-            <InputNumber min={10}/>
+            <InputNumber min={0}/>
           </Form.Item>
         </Col>
         <Col span={12}>
@@ -190,8 +191,13 @@ export default function OnlineProductForm({
                   <Form.Item>
                     <Button
                       type="dashed"
-                      onClick={() => add()}
+                      onClick={() => {
+                        if (fields.length < MAX_IMAGES) {
+                          add();
+                        }
+                      }}
                       icon={<PlusOutlined />}
+                      disabled={fields.length >= MAX_IMAGES}
                     >
                       Add Image
                     </Button>
