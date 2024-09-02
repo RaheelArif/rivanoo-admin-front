@@ -1,14 +1,15 @@
-import { Button } from "antd";
+import { Button, Checkbox } from "antd";
 import axios from "axios";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/appBaseUrl";
+import { updateProduct } from "../app/slices/onlineProductSlice";
 
 export default function PostButtons({ record }) {
   const dispatch = useDispatch();
   const { items } = useSelector((state) => state.onlineProducts);
 
-  const handleFyndiqPost = async () => {
+  const handleFyndiqPost = async (wb) => {
     try {
       const payload = {
         sku: record.sku,
@@ -35,12 +36,13 @@ export default function PostButtons({ record }) {
             currency: value.currency,
           },
         })),
-        shipping_time: record.shipping_time.map(({ market = "SE", min, max }) => ({
-          market,
-          min,
-          max,
-        })),
-
+        shipping_time: record.shipping_time.map(
+          ({ market = "SE", min, max }) => ({
+            market,
+            min,
+            max,
+          })
+        ),
       };
 
       const response = await axios.post(
@@ -48,6 +50,12 @@ export default function PostButtons({ record }) {
         payload
       );
       console.log("Response:", response.data);
+      dispatch(
+        updateProduct({
+          id: record._id,
+          updatedProduct: { ...record, websites: [...record.websites, wb] },
+        })
+      );
       alert("Article created successfully on Fyndiq!");
     } catch (error) {
       console.error(
@@ -60,12 +68,17 @@ export default function PostButtons({ record }) {
 
   return (
     <div>
-      <Button onClick={() => handleFyndiqPost()}>Fyndiq</Button>
+      {record.websites &&
+      record.websites.filter((f) => f === "Fyndiq").length ? (
+        <Button disabled>
+          Fyndiq <Checkbox checked></Checkbox>
+        </Button>
+      ) : (
+        <Button onClick={() => handleFyndiqPost("Fyndiq")}>Fyndiq</Button>
+      )}
     </div>
   );
 }
-
-
 
 // const payload = {
 //     categories: ["332", "18333"],

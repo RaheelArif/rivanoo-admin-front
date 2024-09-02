@@ -1,25 +1,67 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Table, Button, Modal, Form, Input, DatePicker, Select, Pagination, message } from 'antd';
-import { fetchMobileProducts, addMobileProduct, updateMobileProduct, deleteMobileProduct, setSelectedStatus, setPage, setPageSize } from '../app/slices/mobileProductSlice';
-import moment from 'moment';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Pagination,
+  message,
+} from "antd";
+import {
+  fetchMobileProducts,
+  addMobileProduct,
+  updateMobileProduct,
+  deleteMobileProduct,
+  setSelectedStatus,
+  setPage,
+  setPageSize,
+} from "../app/slices/mobileProductSlice";
+import moment from "moment";
 
 const { Option } = Select;
-
+const brandOptions = [
+  { label: "huawei", value: "huawei" },
+  { label: "xiaomi", value: "xiaomi" },
+  { label: "iphone", value: "iphone" },
+  { label: "sony", value: "sony" },
+  { label: "samsung", value: "samsung" },
+  { label: "google", value: "google" },
+  { label: "motorola", value: "motorola" },
+  { label: "oneplus", value: "oneplus" },
+  { label: "vivo", value: "vivo" },
+];
 const MobileProductTable = () => {
   const dispatch = useDispatch();
-  const { items: mobileProducts, status, error, selectedStatus, currentPage, pageSize, total } = useSelector((state) => state.mobileProducts);
+  const {
+    items: mobileProducts,
+    status,
+    error,
+    selectedStatus,
+    currentPage,
+    pageSize,
+    total,
+  } = useSelector((state) => state.mobileProducts);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [form] = Form.useForm();
   const [editingProduct, setEditingProduct] = React.useState(null);
 
   useEffect(() => {
-    dispatch(fetchMobileProducts({ status: selectedStatus, page: currentPage, size: pageSize }));
+    dispatch(
+      fetchMobileProducts({
+        status: selectedStatus,
+        page: currentPage,
+        size: pageSize,
+      })
+    );
   }, [dispatch, selectedStatus, currentPage, pageSize]);
 
   useEffect(() => {
-    if (status === 'failed' && error) {
+    if (status === "failed" && error) {
       message.error(error);
     }
   }, [status, error]);
@@ -37,11 +79,18 @@ const MobileProductTable = () => {
     form.validateFields().then((values) => {
       const formattedValues = {
         ...values,
-        release_date: values.release_date ? values.release_date.format('YYYY-MM-DD') : null,
+        release_date: values.release_date
+          ? values.release_date.format("YYYY-MM-DD")
+          : null,
       };
 
       if (editingProduct) {
-        dispatch(updateMobileProduct({ id: editingProduct._id, mobileProduct: formattedValues }));
+        dispatch(
+          updateMobileProduct({
+            id: editingProduct._id,
+            mobileProduct: formattedValues,
+          })
+        );
       } else {
         dispatch(addMobileProduct(formattedValues));
       }
@@ -74,51 +123,63 @@ const MobileProductTable = () => {
   const getRowClassName = (record) => {
     const today = moment();
     const releaseDate = moment(record.release_date);
-    const daysDifference = releaseDate.diff(today, 'days');
+    const daysDifference = releaseDate.diff(today, "days");
 
-    if (daysDifference < 10 && record.status ===  "coming_soon") {
-      return 'red-row';
+    if (daysDifference < 10 && record.status === "coming_soon") {
+      return "red-row";
     }
-    if (record.status ===  "ordered") {
-      return 'yellow-row';
+    if (record.status === "ordered") {
+      return "yellow-row";
     }
-    if (record.status ===  "complete") {
-      return 'green-row';
+    if (record.status === "complete") {
+      return "green-row";
     }
 
-    return '';
+    return "";
   };
 
   const columns = [
-    { title: 'Brand', dataIndex: 'brand', key: 'brand' },
-    { 
-      title: 'Release Date', 
-      dataIndex: 'release_date',
-      key: 'release_date',
-      render: (date) => date ? moment(date).format('YYYY-MM-DD') : 'N/A',
+    { title: "Brand", dataIndex: "brand", key: "brand" },
+    {
+      title: "Release Date",
+      dataIndex: "release_date",
+      key: "release_date",
+      render: (date) => (date ? moment(date).format("YYYY-MM-DD") : "N/A"),
     },
-    { title: 'Description', dataIndex: 'description', key: 'description' },
-    { 
-      title: 'Status', 
-      dataIndex: 'status', 
-      key: 'status',
+    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (text) => {
         const statusMapping = {
-          coming_soon: 'Coming Soon',
-          ordered: 'Ordered',
-          complete: 'Complete',
-          canceled: 'Canceled',
+          coming_soon: "Coming Soon",
+          ordered: "Ordered",
+          complete: "Complete",
+          canceled: "Canceled",
         };
-        return statusMapping[text] || 'Unknown';
-      }
+        return statusMapping[text] || "Unknown";
+      },
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       render: (text, record) => (
         <>
-          <Button type='primary' onClick={() => showModal(record)} style={{ marginRight: 8 }}>Edit</Button>
-          <Button  type='primary' onClick={() => handleDelete(record._id)} danger>Delete</Button>
+          <Button
+            type="primary"
+            onClick={() => showModal(record)}
+            style={{ marginRight: 8 }}
+          >
+            Edit
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => handleDelete(record._id)}
+            danger
+          >
+            Delete
+          </Button>
         </>
       ),
     },
@@ -126,10 +187,14 @@ const MobileProductTable = () => {
 
   return (
     <>
-      <Button type="primary" onClick={() => showModal()} style={{ marginBottom: 16 }}>
+      <Button
+        type="primary"
+        onClick={() => showModal()}
+        style={{ marginBottom: 16 }}
+      >
         Add Mobile Product
       </Button>
-      <Select 
+      <Select
         style={{ marginBottom: 16, width: 200 }}
         placeholder="Select Status"
         onChange={handleStatusChange}
@@ -156,40 +221,50 @@ const MobileProductTable = () => {
         showSizeChanger={false}
         // onShowSizeChange={handlePageSizeChange}
         // pageSizeOptions={['10', '20', '30', '40']}
-        style={{ marginTop: 16, textAlign: 'center' }}
+        style={{ marginTop: 16, textAlign: "center" }}
       />
       <Modal
-        title={editingProduct ? 'Edit Mobile Product' : 'Add Mobile Product'}
+        title={editingProduct ? "Edit Mobile Product" : "Add Mobile Product"}
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
       >
         <Form form={form} layout="vertical">
-          <Form.Item 
-            name="brand" 
-            label="Brand" 
-            rules={[{ required: true, message: 'Please input the brand!' }]}
+          <Form.Item
+            name="brand"
+            label="Brand"
+            rules={[{ required: true, message: "Please select the brand!" }]}
           >
-            <Input />
+            <Select placeholder="Select a brand">
+              {brandOptions.map((brand) => (
+                <Option key={brand.value} value={brand.value}>
+                  {brand.label}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
-          <Form.Item 
+          <Form.Item
             name="release_date"
-            label="Release Date" 
-            rules={[{ required: true, message: 'Please select the release date!' }]}
+            label="Release Date"
+            rules={[
+              { required: true, message: "Please select the release date!" },
+            ]}
           >
             <DatePicker format="YYYY-MM-DD" />
           </Form.Item>
-          <Form.Item 
-            name="description" 
-            label="Description" 
-            rules={[{ required: true, message: 'Please input the description!' }]}
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              { required: true, message: "Please input the description!" },
+            ]}
           >
             <Input />
           </Form.Item>
-          <Form.Item 
-            name="status" 
-            label="Status" 
-            rules={[{ required: true, message: 'Please select the status!' }]}
+          <Form.Item
+            name="status"
+            label="Status"
+            rules={[{ required: true, message: "Please select the status!" }]}
           >
             <Select>
               <Option value="coming_soon">Coming Soon</Option>

@@ -28,6 +28,7 @@ import axios from "axios";
 import ImageUploadOrUrl from "./ImageUploadOrUrl";
 import { BASE_URL } from "../utils/appBaseUrl";
 import PostButtons from "./PostButtons";
+import OnlineProductForm from "./OnlineProductForm";
 
 const { Option } = Select;
 
@@ -178,21 +179,16 @@ const OnlineProductTable = () => {
 
   const showModal = (product = null) => {
     setEditingProduct(product);
-    form.setFieldsValue(product || {});
-    setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    form.validateFields().then((values) => {
-      if (editingProduct) {
-        dispatch(
-          updateProduct({ id: editingProduct._id, updatedProduct: values })
-        );
-      } else {
-        dispatch(addProduct(values));
+    if (product) {
+      form.setFieldsValue(product);
+    } else {
+      form.resetFields();
+      // Set the first GTIN value when opening the modal for a new product
+      if (gtin.length > 0) {
+        form.setFieldsValue({ gtin: gtin[0].gtin });
       }
-      setIsModalVisible(false);
-    });
+    }
+    setIsModalVisible(true);
   };
 
   const handleCancel = () => {
@@ -274,19 +270,55 @@ const OnlineProductTable = () => {
       title: translatedtitle,
     });
   };
-  const [gtin, setgtin] = useState([]);
+  const [gtin, setGtin] = useState([]);
   const [loading, setLoading] = useState(false);
+  const handleOk = () => {
+    form.validateFields().then((values) => {
+      if (editingProduct) {
+        dispatch(
+          updateProduct({ id: editingProduct._id, updatedProduct: values })
+        ).then((resultAction) => {
+          if (updateProduct.fulfilled.match(resultAction)) {
+            message.success("Product updated successfully");
+            resetForm();
+          } else {
+            message.error("Failed to update product");
+          }
+        });
+      } else {
+        dispatch(addProduct(values)).then((resultAction) => {
+          if (addProduct.fulfilled.match(resultAction)) {
+            message.success("Product added successfully");
+            resetForm();
+          } else {
+            message.error("Failed to add product");
+          }
+        });
+      }
+      setIsModalVisible(false);
+    });
+  };
 
+  const resetForm = () => {
+    form.resetFields();
+    setSelectedMarkets([]);
+    setEditingProduct(null);
+  };
   useEffect(() => {
-    fetchgtin();
+    fetchGtin();
   }, []);
 
-  const fetchgtin = async () => {
+  const fetchGtin = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${BASE_URL}/gtin?page=1&size=57&status=pending`);
-      setgtin(response.data.gtins);
+      setGtin(response.data.gtins);
       setLoading(false);
+      
+      // Automatically select the first GTIN value
+      if (response.data.gtins.length > 0) {
+        form.setFieldsValue({ gtin: response.data.gtins[0].gtin });
+      }
     } catch (error) {
       console.error("Failed to fetch gtin", error);
       setLoading(false);
@@ -452,468 +484,14 @@ const OnlineProductTable = () => {
         <button onClick={() => console.log(form.getFieldValue())}>
           values
         </button>
-        <Form form={form} layout="vertical">
-          <Row>
-          <Col style={{display:'none'}} span={24}>
-              {" "}
-              <Form.Item
-                name="markets"
-                label="markets"
-                rules={[{ required: true, message: "Please input the market!" }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {" "}
-              <Form.Item
-                name="sku"
-                label="SKU"
-                rules={[{ required: true, message: "Please input the SKU!" }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {" "}
-              <Form.Item
-                name="categories"
-                label="Categories"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select at least one category!",
-                  },
-                ]}
-              >
-                <Select
-                  mode="multiple"
-                  placeholder="Select categories"
-                  allowClear
-                  options={[
-                    { label: "332", value: 332 },
-                    { label: "18333", value: 18333 },
-                    { label: "Category 3", value: "category3" },
-                    { label: "Category 4", value: "category4" },
-                    { label: "Category 5", value: "category5" },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {" "}
-              <Form.Item
-                name="status"
-                label="Status"
-                rules={[
-                  { required: true, message: "Please select the status!" },
-                ]}
-              >
-                <Select>
-                  <Option value="for sale">for sale</Option>
-                  <Option value="paused">paused</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="GTIN"
-                name="gtin"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select a GTIN",
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Select a gtin product ID"
-                  optionFilterProp="children"
-                  loading={loading}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {gtin.map((product) => (
-                    <Option key={product._id} value={product.gtin}>
-                      {product.gtin}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              {" "}
-              <Form.Item
-                name="quantity"
-                label="Quantity"
-                rules={[
-                  { required: true, message: "Please input the quantity!" },
-                ]}
-              >
-                <InputNumber />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {" "}
-              <Form.Item
-                name="main_image"
-                label="Main Image"
-                rules={[
-                  {
-                    required: true,
-                    message:
-                      "Please input the main image URL or upload an image!",
-                  },
-                ]}
-              >
-                <ImageUploadOrUrl />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {" "}
-              <Form.Item name="images" label="Images">
-                <Form.List name="images">
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, fieldKey, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{ display: "flex", marginBottom: 8 }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name]}
-                            fieldKey={[fieldKey]}
-                            rules={[
-                              {
-                                required: true,
-                                message:
-                                  "Please input the image URL or upload an image!",
-                              },
-                            ]}
-                          >
-                            <ImageUploadOrUrl />
-                          </Form.Item>
-                          <MinusCircleOutlined onClick={() => remove(name)} />
-                        </Space>
-                      ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          icon={<PlusOutlined />}
-                        >
-                          Add Image
-                        </Button>
-                      </Form.Item>
-                    </>
-                  )}
-                </Form.List>
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              {" "}
-              <Form.Item style={{ width: "100%" }} name="title" label="Title">
-                <Form.List style={{ width: "100%" }} name="title">
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, fieldKey, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{
-                            display: "flex",
-                            marginBottom: 8,
-                            width: "100%",
-                          }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name, "language"]}
-                            fieldKey={[fieldKey, "language"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the language!",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Language" />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "value"]}
-                            fieldKey={[fieldKey, "value"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the title!",
-                              },
-                            ]}
-                            style={{ width: "100%" }}
-                          >
-                            <Input
-                              onBlur={(e) =>
-                                handleTitleChange(e.target.value, form, [
-                                  name,
-                                  "value",
-                                ])
-                              }
-                              style={{ width: "100%" }}
-                              placeholder="Title"
-                            />
-                          </Form.Item>
-                        </Space>
-                      ))}
-                    </>
-                  )}
-                </Form.List>
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              {" "}
-              <Form.Item
-                style={{ width: "100%" }}
-                name="description"
-                label="Description"
-              >
-                <Form.List name="description">
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, fieldKey, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{
-                            display: "flex",
-                            marginBottom: 8,
-                            width: "100%",
-                          }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name, "language"]}
-                            fieldKey={[fieldKey, "language"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the language!",
-                              },
-                            ]}
-                            style={{ width: "100%" }}
-                          >
-                            <Input placeholder="Language" />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "value"]}
-                            fieldKey={[fieldKey, "value"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the description!",
-                              },
-                            ]}
-                            style={{ width: "100%" }}
-                          >
-                            <Input.TextArea
-                              onBlur={(e) =>
-                                handleDescriptionChange(e.target.value, form, [
-                                  name,
-                                  "value",
-                                ])
-                              }
-                              style={{ width: "100%" }}
-                              placeholder="Description"
-                            />
-                          </Form.Item>
-                        </Space>
-                      ))}
-                    </>
-                  )}
-                </Form.List>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {" "}
-              <Form.Item name="price" label="Price">
-                <Form.List name="price">
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, fieldKey, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{ display: "flex", marginBottom: 8 }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name, "market"]}
-                            fieldKey={[fieldKey, "market"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the market!",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Market" />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "value", "amount"]}
-                            fieldKey={[fieldKey, "value", "amount"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the amount!",
-                              },
-                            ]}
-                          >
-                            <InputNumber placeholder="Amount" />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "value", "currency"]}
-                            fieldKey={[fieldKey, "value", "currency"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the currency!",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Currency" />
-                          </Form.Item>
-                        </Space>
-                      ))}
-                    </>
-                  )}
-                </Form.List>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              {" "}
-              <Form.Item name="original_price" label="Original Price">
-                <Form.List name="original_price">
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, fieldKey, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{ display: "flex", marginBottom: 8 }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name, "market"]}
-                            fieldKey={[fieldKey, "market"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the market!",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Market" />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "value", "amount"]}
-                            fieldKey={[fieldKey, "value", "amount"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the amount!",
-                              },
-                            ]}
-                          >
-                            <InputNumber placeholder="Amount" />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "value", "currency"]}
-                            fieldKey={[fieldKey, "value", "currency"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please input the currency!",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Currency" />
-                          </Form.Item>
-                        </Space>
-                      ))}
-                    </>
-                  )}
-                </Form.List>
-              </Form.Item>
-            </Col>
-            <Col style={{display:'none'}} span={24}>
-              <Form.List name="shipping_time">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, fieldKey, ...restField }) => (
-                      <div key={key}>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "market"]}
-                          label="Market"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please input the market!",
-                            },
-                          ]}
-                        >
-                          <Input placeholder="e.g., SE" />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "min"]}
-                          label="Min Days"
-                          rules={[
-                            {
-                              required: true,
-                              message:
-                                "Please input the minimum shipping days!",
-                            },
-                          ]}
-                        >
-                          <Input type="number" placeholder="e.g., 1" />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "max"]}
-                          label="Max Days"
-                          rules={[
-                            {
-                              required: true,
-                              message:
-                                "Please input the maximum shipping days!",
-                            },
-                          ]}
-                        >
-                          <Input type="number" placeholder="e.g., 3" />
-                        </Form.Item>
-                        <Button type="danger" onClick={() => remove(name)}>
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
-                    <Button type="dashed" onClick={() => add()}>
-                      Add Shipping Time
-                    </Button>
-                  </>
-                )}
-              </Form.List>
-            </Col>
-          </Row>
-        </Form>
+        <OnlineProductForm
+          form={form}
+          selectedMarkets={selectedMarkets}
+          handleTitleChange={handleTitleChange}
+          handleDescriptionChange={handleDescriptionChange}
+          gtin={gtin}
+          loading={loading}
+        />
       </Modal>
     </>
   );
