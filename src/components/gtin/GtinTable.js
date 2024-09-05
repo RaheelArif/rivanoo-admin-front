@@ -7,7 +7,7 @@ import {
   updateGtin,
   deleteGtin,
   setPage,
-} from '../app/slices/gtinSlice';
+} from '../../app/slices/gtinSlice';
 
 const { Option } = Select;
 

@@ -17,10 +17,12 @@ import {
   updateMobileProduct,
   deleteMobileProduct,
   setSelectedStatus,
+  setSelectedBrands,
   setPage,
   setPageSize,
-} from "../app/slices/mobileProductSlice";
+} from "../../app/slices/mobileProductSlice";
 import moment from "moment";
+import SmsSender from "./SmsSender";
 
 const { Option } = Select;
 const brandOptions = [
@@ -41,6 +43,7 @@ const MobileProductTable = () => {
     status,
     error,
     selectedStatus,
+    selectedBrand,
     currentPage,
     pageSize,
     total,
@@ -54,11 +57,12 @@ const MobileProductTable = () => {
     dispatch(
       fetchMobileProducts({
         status: selectedStatus,
+        brand: selectedBrand,
         page: currentPage,
         size: pageSize,
       })
     );
-  }, [dispatch, selectedStatus, currentPage, pageSize]);
+  }, [dispatch, selectedStatus, currentPage, pageSize, selectedBrand]);
 
   useEffect(() => {
     if (status === "failed" && error) {
@@ -108,6 +112,10 @@ const MobileProductTable = () => {
 
   const handleStatusChange = (value) => {
     dispatch(setSelectedStatus(value));
+    dispatch(setPage(1)); // Reset to the first page when status changes
+  };
+  const handleBrandChange = (value) => {
+    dispatch(setSelectedBrands(value));
     dispatch(setPage(1)); // Reset to the first page when status changes
   };
 
@@ -162,6 +170,27 @@ const MobileProductTable = () => {
       },
     },
     {
+      title: "Last Reminder",
+      dataIndex: "02",
+      key: "02",
+      render: (text, record) =>
+        record.last_reminder ? (
+          moment(record.last_reminder).fromNow()
+        ) : (
+          <p style={{ color: "red" }}>not send</p>
+        ),
+    },
+    {
+      title: "Reminder",
+      dataIndex: "01",
+      key: "01",
+      render: (text, record) => (
+        <>
+          <SmsSender record={record} />
+        </>
+      ),
+    },
+    {
       title: "Action",
       key: "action",
       render: (text, record) => (
@@ -200,11 +229,23 @@ const MobileProductTable = () => {
         onChange={handleStatusChange}
         value={selectedStatus} // Controlled value
       >
-        <Option value="">All</Option>
+        <Option value="">All Status</Option>
         <Option value="coming_soon">Coming Soon</Option>
         <Option value="ordered">Ordered</Option>
         <Option value="complete">Complete</Option>
         <Option value="canceled">Canceled</Option>
+      </Select>
+      <Select
+        style={{ marginBottom: 16, width: 200 }}
+        placeholder="Select Brand"
+        onChange={handleBrandChange}
+        value={selectedBrand} // Controlled value
+      >
+        <Option value="">All Brand</Option>
+        {brandOptions &&
+          brandOptions.map((b , bi) => {
+            return <Option value={b.value}>{b.label}</Option>;
+          })}
       </Select>
       <Table
         columns={columns}

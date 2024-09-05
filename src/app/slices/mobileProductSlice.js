@@ -8,16 +8,18 @@ let initialState = {
   status: "idle",
   error: null,
   selectedStatus: "",
+  selectedBrand: "",
   currentPage: 1,
   pageSize: 10,
 };
 
 export const fetchMobileProducts = createAsyncThunk(
   "mobileProducts/fetchMobileProducts",
-  async ({ status, page = 1, size = 10 }) => {
+  async ({ status, brand, page = 1, size = 10 }) => {
     const response = await axios.get(`${BASE_URL}/mobile_product`, {
       params: {
         status,
+        brand,
         page,
         size,
       },
@@ -64,6 +66,10 @@ const mobileProductSlice = createSlice({
     setSelectedStatus: (state, action) => {
       state.selectedStatus = action.payload;
     },
+    setSelectedBrands: (state, action) => {
+      state.selectedBrand = action.payload;
+    },
+
     setPage: (state, action) => {
       state.currentPage = action.payload;
     },
@@ -102,6 +108,6 @@ const mobileProductSlice = createSlice({
   },
 });
 
-export const { setSelectedStatus, setPage, setPageSize } =
+export const { setSelectedStatus, setPage, setPageSize, setSelectedBrands } =
   mobileProductSlice.actions;
 export default mobileProductSlice.reducer;

@@ -11,9 +11,9 @@ import ProductsTable from "./ProductsTable";
 import UploadComments from "./UploadComments";
 import Comments from "../features/comments/Comments";
 import OrderProductTable from "./OrderProductTable";
-import MobileProductTable from "./MobileProductTable";
+import MobileProductTable from "./upcomingMobiles/MobileProductTable";
 import OnlineProductTable from "./OnlineProductTable";
-import GtinTable from "./GtinTable";
+import GtinTable from "./gtin/GtinTable";
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
