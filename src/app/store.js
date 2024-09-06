@@ -3,8 +3,9 @@ import productsReducer from "./slices/productsSlice";
 import orderProductReducer from "./slices/orderProductSlice";
 import mobileProductReducer from "./slices/mobileProductSlice";
 import onlineProductReducer from "./slices/onlineProductSlice";
-import passwordReducer from './slices/passwordSlice';
-import gtinReducer from './slices/gtinSlice';
+import passwordReducer from "./slices/passwordSlice";
+import gtinReducer from "./slices/gtinSlice";
+import shopifyReducer from "./slices/shopifySlice";
 export const store = configureStore({
   reducer: {
     products: productsReducer,
@@ -13,5 +14,6 @@ export const store = configureStore({
     onlineProducts: onlineProductReducer,
     password: passwordReducer,
     gtin: gtinReducer,
+    shopify: shopifyReducer,
   },
 });

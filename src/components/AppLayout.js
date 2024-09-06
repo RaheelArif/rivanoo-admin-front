@@ -14,6 +14,7 @@ import OrderProductTable from "./OrderProductTable";
 import MobileProductTable from "./upcomingMobiles/MobileProductTable";
 import OnlineProductTable from "./OnlineProductTable";
 import GtinTable from "./gtin/GtinTable";
+import ShopifyProductTable from "./shopify/ShopifyProductTable";
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -38,7 +39,7 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: "Products",
             },
-    
+
             {
               key: "3",
               icon: <UserOutlined />,
@@ -68,6 +69,11 @@ const AppLayout = () => {
               key: "8",
               icon: <UserOutlined />,
               label: "Gitn",
+            },
+            {
+              key: "9",
+              icon: <UserOutlined />,
+              label: "Shopify",
             },
           ]}
           onClick={(v) => setSelected(v?.key)}
@@ -106,6 +112,7 @@ const AppLayout = () => {
           {selected === "6" ? <MobileProductTable /> : null}
           {selected === "7" ? <OnlineProductTable /> : null}
           {selected === "8" ? <GtinTable /> : null}
+          {selected === "9" ? <ShopifyProductTable /> : null}
 
           {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
