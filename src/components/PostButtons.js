@@ -4,6 +4,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/appBaseUrl";
 import { updateProduct } from "../app/slices/onlineProductSlice";
+import FyndiqProduct from "./newProducts/FyndiqProduct";
 
 export default function PostButtons({ record }) {
   const dispatch = useDispatch();
@@ -50,12 +51,26 @@ export default function PostButtons({ record }) {
         payload
       );
       console.log("Response:", response.data);
-      dispatch(
-        updateProduct({
-          id: record._id,
-          updatedProduct: { ...record, websites: [...record.websites, wb] },
-        })
-      );
+      if (response.data && response.data.data && response.data.data.id) {
+        dispatch(
+          updateProduct({
+            id: record._id,
+            updatedProduct: {
+              ...record,
+              platforms: [
+                ...record.platforms,
+                { platform: "Fyndiq", id: response.data.data.id },
+              ],
+            },
+          })
+        );
+      }
+      // dispatch(
+      //   updateProduct({
+      //     id: record._id,
+      //     updatedProduct: { ...record, websites: [...record.websites, wb] },
+      //   })
+      // );
       alert("Article created successfully on Fyndiq!");
     } catch (error) {
       console.error(
@@ -65,16 +80,22 @@ export default function PostButtons({ record }) {
       alert("Failed to create article on Fyndiq");
     }
   };
-
+  const handleShopifyPost = async (response) => {};
   return (
     <div>
-      {record.websites &&
-      record.websites.filter((f) => f === "Fyndiq").length ? (
+      {record.platforms &&
+      record.platforms.some((p) => p.platform === "Fyndiq") ? (
+        <FyndiqProduct record={record}/>
+      ) : (
+        <Button onClick={() => handleFyndiqPost("Fyndiq")}> Fyndiq</Button>
+      )}
+      {record.platforms &&
+      record.platforms.some((p) => p.platform === "Shopify") ? (
         <Button disabled>
-          Fyndiq <Checkbox checked></Checkbox>
+          Shopify <Checkbox checked />
         </Button>
       ) : (
-        <Button onClick={() => handleFyndiqPost("Fyndiq")}>Fyndiq</Button>
+        <Button onClick={() => handleShopifyPost()}>Shopify</Button>
       )}
     </div>
   );
