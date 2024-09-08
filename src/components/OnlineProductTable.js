@@ -311,10 +311,12 @@ const OnlineProductTable = () => {
   const fetchGtin = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}/gtin?page=1&size=57&status=pending`);
+      const response = await axios.get(
+        `${BASE_URL}/gtin?page=1&size=57&status=pending`
+      );
       setGtin(response.data.gtins);
       setLoading(false);
-      
+
       // Automatically select the first GTIN value
       if (response.data.gtins.length > 0) {
         form.setFieldsValue({ gtin: response.data.gtins[0].gtin });
@@ -371,6 +373,12 @@ const OnlineProductTable = () => {
       key: "title",
       render: (titles) =>
         titles.map((title) => `${title.language}: ${title.value}`).join(", "),
+    },
+    {
+      title: "GTIN",
+      dataIndex: "gtin",
+      key: "gtin",
+      render: (text) => text,
     },
     {
       title: "Description",
