@@ -1,10 +1,12 @@
-import { Button, Checkbox } from "antd";
+import { Button, Checkbox, message } from "antd";
 import axios from "axios";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/appBaseUrl";
 import { updateProduct } from "../app/slices/onlineProductSlice";
 import FyndiqProduct from "./newProducts/FyndiqProduct";
+import { addProduct } from "../app/slices/shopifySlice";
+import ShopifyProduct from "./newProducts/ShopifyProduct";
 
 export default function PostButtons({ record }) {
   const dispatch = useDispatch();
@@ -65,12 +67,7 @@ export default function PostButtons({ record }) {
           })
         );
       }
-      // dispatch(
-      //   updateProduct({
-      //     id: record._id,
-      //     updatedProduct: { ...record, websites: [...record.websites, wb] },
-      //   })
-      // );
+
       alert("Article created successfully on Fyndiq!");
     } catch (error) {
       console.error(
@@ -80,42 +77,80 @@ export default function PostButtons({ record }) {
       alert("Failed to create article on Fyndiq");
     }
   };
-  const handleShopifyPost = async (response) => {};
+  const handleShopifyPost = async () => {
+    // Define your product object
+    const newProduct = {
+      title: record.sku,
+      body_html: "<strong>Good snowboard!</strong>",
+      vendor: "Burton",
+      product_type: "Snowboard",
+      variants: [
+        {
+          option1: "Blue",
+          option2: "155",
+        },
+        {
+          option1: "Black",
+          option2: "159",
+        },
+      ],
+      options: [
+        {
+          name: "Color",
+          values: ["Blue", "Black"],
+        },
+        {
+          name: "Size",
+          values: ["155", "159"],
+        },
+      ],
+    };
+
+    try {
+      // Dispatch the addProduct action and get the response
+      const data = await dispatch(addProduct(newProduct)).unwrap();
+
+      // Process the response data
+      console.log("Product added successfully:", data);
+      if (data.success && data.product && data.product.id) {
+        dispatch(
+          updateProduct({
+            id: record._id,
+            updatedProduct: {
+              ...record,
+              platforms: [
+                ...record.platforms,
+                { platform: "Shopify", id: data.product.id },
+              ],
+            },
+          })
+        );
+      }
+      // Optionally show a success message or update the UI
+      message.success("Product added successfully!");
+
+      // Update the UI or state based on the response
+      // For example, you could trigger a fetch for the updated product list
+      // dispatch(fetchProducts({ limit: 10, page: 1 }));
+    } catch (error) {
+      console.error("Error adding product:", error);
+      message.error("Failed to add product.");
+    }
+  };
   return (
     <div>
       {record.platforms &&
       record.platforms.some((p) => p.platform === "Fyndiq") ? (
-        <FyndiqProduct record={record}/>
+        <FyndiqProduct record={record} />
       ) : (
         <Button onClick={() => handleFyndiqPost("Fyndiq")}> Fyndiq</Button>
       )}
       {record.platforms &&
       record.platforms.some((p) => p.platform === "Shopify") ? (
-        <Button disabled>
-          Shopify <Checkbox checked />
-        </Button>
+        <ShopifyProduct record={record} />
       ) : (
         <Button onClick={() => handleShopifyPost()}>Shopify</Button>
       )}
     </div>
   );
 }
-
-// const payload = {
-//     categories: ["332", "18333"],
-//     description: [{ language: "sv-SE", value: "sdvds<vdsvsdvdsv" }],
-//     gtin: "1234234",
-//     images: ["https://storage.googleapis.com/hadaya/26-8-2024/products/GOOGLE%20PIXEL%209/1%20PACK/GOOGLE%20PIXEL%209_1%20PACK_1.jpg"],
-//     main_image: "https://i.postimg.cc/pxFKq0Bs/Google-Pixel-7-A.jpg"
-// ,
-//     markets: ["SE"],
-//     original_price: [
-//       { market: "SE", value: { amount: 100, currency: "SEK" } },
-//     ],
-//     price: [{ market: "SE", value: { amount: 100, currency: "SEK" } }],
-//     quantity: 12,
-//     shipping_time: [{ market: "SE", min: 1, max: 3 }],
-//     sku: "weqfewf",
-//     status: "for sale",
-//     title: [{ language: "sv-SE", value: "vdsfdsfdsfdsvsdv dsvsdavds" }],
-//   };

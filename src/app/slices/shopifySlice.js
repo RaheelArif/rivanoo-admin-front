@@ -1,12 +1,10 @@
-// src/redux/slices/productSlice.js
-
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { BASE_URL } from '../../utils/appBaseUrl';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { BASE_URL } from "../../utils/appBaseUrl";
 
 // Async thunks for CRUD operations
 export const fetchProducts = createAsyncThunk(
-  'shopify/fetchProducts',
+  "shopify/fetchProducts",
   async ({ limit = 10, page = 1 }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${BASE_URL}/shopify/products`, {
@@ -19,11 +17,26 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
+export const fetchProductById = createAsyncThunk(
+  "shopify/fetchProductById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/shopify/products/${id}`);
+      return response.data; // Ensure this matches your API response structure
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const addProduct = createAsyncThunk(
-  'shopify/addProduct',
+  "shopify/addProduct",
   async (newProduct, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}/shopify/create`, newProduct);
+      const response = await axios.post(
+        `${BASE_URL}/shopify/create`,
+        newProduct
+      );
       return response.data; // Ensure this matches your API response structure
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -32,10 +45,13 @@ export const addProduct = createAsyncThunk(
 );
 
 export const updateProduct = createAsyncThunk(
-  'shopify/updateProduct',
+  "shopify/updateProduct",
   async ({ id, updatedProduct }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${BASE_URL}/shopify/products/${id}`, updatedProduct);
+      const response = await axios.put(
+        `${BASE_URL}/shopify/products/${id}`,
+        updatedProduct
+      );
       return response.data; // Ensure this matches your API response structure
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -44,7 +60,7 @@ export const updateProduct = createAsyncThunk(
 );
 
 export const deleteProduct = createAsyncThunk(
-  'shopify/deleteProduct',
+  "shopify/deleteProduct",
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(`${BASE_URL}/shopify/products/${id}`);
@@ -56,9 +72,10 @@ export const deleteProduct = createAsyncThunk(
 );
 
 const productSlice = createSlice({
-  name: 'shopify',
+  name: "shopify",
   initialState: {
     products: [],
+    selectedProduct: null, // Add this state to handle single product
     loading: false,
     error: null,
     total: 0,
@@ -87,6 +104,17 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload; // Adjust as needed
       })
+      .addCase(fetchProductById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedProduct = action.payload.product; // Assuming response contains `product`
+      })
+      .addCase(fetchProductById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload; // Adjust as needed
+      })
       .addCase(addProduct.pending, (state) => {
         state.loading = true;
       })
@@ -103,7 +131,9 @@ const productSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.products.findIndex((product) => product.id === action.payload.product.id);
+        const index = state.products.findIndex(
+          (product) => product.id === action.payload.product.id
+        );
         if (index !== -1) {
           state.products[index] = action.payload.product; // Adjust if necessary
         }
@@ -117,7 +147,9 @@ const productSlice = createSlice({
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = state.products.filter((product) => product.id !== action.payload.id); // Adjust if necessary
+        state.products = state.products.filter(
+          (product) => product.id !== action.payload.id
+        ); // Adjust if necessary
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.loading = false;
