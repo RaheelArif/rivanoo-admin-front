@@ -60,6 +60,7 @@ export default function FyndiqProduct({ record }) {
       let updatedProduct;
       if (selectedProduct) {
         updatedProduct = {
+          sku: selectedProduct.sku,
           brand: selectedProduct.brand,
           categories: selectedProduct.categories,
           description: selectedProduct.description,
@@ -67,7 +68,6 @@ export default function FyndiqProduct({ record }) {
           images: selectedProduct.images,
           main_image: selectedProduct.main_image,
           shipping_time: selectedProduct.shipping_time,
-          sku: selectedProduct.sku,
           status: selectedProduct.status,
           markets: selectedProduct.markets,
           title: values.title,

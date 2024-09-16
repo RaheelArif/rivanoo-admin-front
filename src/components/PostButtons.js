@@ -16,7 +16,7 @@ export default function PostButtons({ record }) {
     try {
       const payload = {
         sku: record.sku,
-        gtin: record.gtin,
+        // gtin: record.gtin,
         categories: record.categories,
         status: record.status,
         quantity: record.quantity,
