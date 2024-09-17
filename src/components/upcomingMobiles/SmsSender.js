@@ -9,7 +9,7 @@ const SmsSender = ({ record }) => {
   const [error, setError] = useState("");
 
   const sendMessage = async () => {
-    const phoneNumber = "+46793011715";
+    const phoneNumber = "+46790775071";
     const messageBody = `Brand = ${record.brand}\n\n ${
       record.description
     } is  coming on ${moment(record.release_date).format(

@@ -9,9 +9,13 @@ import {
   Row,
   Col,
   Tabs,
+  message,
 } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import ImageUploadOrUrl from "../ImageUploadOrUrl";
+import { BASE_URL } from "../../utils/appBaseUrl";
+
+import axios from "axios";
 const { Option } = Select;
 const MAX_IMAGES = 10;
 export default function OnlineProductForm({
@@ -23,7 +27,30 @@ export default function OnlineProductForm({
   loading,
 }) {
   const [tab, setTab] = useState("0");
+  const [productTypes, setProductTypes] = useState([]);
+  const [loading2, setLoading2] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
+  // Fetch product types
+  const fetchProductTypes = async () => {
+    setLoading2(true);
+    try {
+      const response = await axios.get(`${BASE_URL}/product-types`);
+      setProductTypes(response.data?.productTypes);
+    } catch (error) {
+      setFetchError(error.message);
+      message.error("Failed to load product types");
+    } finally {
+      setLoading2(false);
+    }
+  };
+
+  // Fetch product types when the dropdown is opened
+  const handleDropdownVisibleChange = (open) => {
+    if (open && productTypes.length === 0) {
+      fetchProductTypes();
+    }
+  };
   if (selectedMarkets.length === 0) {
     return <p>Please select at least one market to display the form.</p>;
   }
@@ -47,6 +74,7 @@ export default function OnlineProductForm({
 
     return Promise.resolve();
   };
+
   const items = [
     {
       key: "0",
@@ -115,25 +143,25 @@ export default function OnlineProductForm({
             rules={[
               {
                 required: true,
-                message: "Please select a GTIN",
+                message: "Please select a Product Type",
               },
             ]}
           >
             <Select
               showSearch
-              placeholder="Select a Product Type "
+              placeholder="Select a Product Type"
               optionFilterProp="children"
               loading={loading}
+              onDropdownVisibleChange={handleDropdownVisibleChange}
               filterOption={(input, option) =>
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
             >
-              <Option value={"test"}>test</Option>
-              {/* {sh_product_type.map((product) => (
-                <Option key={product._id} value={product.gtin}>
-                  {product.sh_product_type}
+              {productTypes.map((type) => (
+                <Option key={type._id} value={type._id}>
+                  {type.type}
                 </Option>
-              ))} */}
+              ))}
             </Select>
           </Form.Item>
         </Col>

@@ -77,13 +77,14 @@ export default function PostButtons({ record }) {
       alert("Failed to create article on Fyndiq");
     }
   };
+  const createHtmlString = (description) => `<strong>${description}</strong>`;
   const handleShopifyPost = async () => {
     // Define your product object
     const newProduct = {
-      title: record.sku,
-      body_html: "<strong>Good snowboard!</strong>",
-      vendor: "Burton",
-      product_type: "Snowboard",
+      title: record.sh_title,
+      body_html: createHtmlString(record.sh_body_html),
+      vendor: record.sh_vendor,
+      product_type: record.sh_product_type,
       variants: [
         {
           option1: "Blue",
