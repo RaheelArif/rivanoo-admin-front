@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Form,
   Input,
@@ -8,9 +8,10 @@ import {
   Button,
   Row,
   Col,
+  Tabs,
 } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import ImageUploadOrUrl from "./ImageUploadOrUrl";
+import ImageUploadOrUrl from "../ImageUploadOrUrl";
 const { Option } = Select;
 const MAX_IMAGES = 10;
 export default function OnlineProductForm({
@@ -21,6 +22,8 @@ export default function OnlineProductForm({
   gtin,
   loading,
 }) {
+  const [tab, setTab] = useState("0");
+
   if (selectedMarkets.length === 0) {
     return <p>Please select at least one market to display the form.</p>;
   }
@@ -44,8 +47,123 @@ export default function OnlineProductForm({
 
     return Promise.resolve();
   };
-  return (
-    <Form form={form} layout="vertical">
+  const items = [
+    {
+      key: "0",
+      label: "Commoon",
+    },
+    {
+      key: "1",
+      label: "Fyndiq",
+    },
+    {
+      key: "2",
+      label: "Shopify",
+    },
+    {
+      key: "3",
+      label: "Cdon",
+    },
+  ];
+  const shopifyDetails = () => {
+    return (
+      <Row>
+        {" "}
+        <Col span={12}>
+          {" "}
+          <Form.Item
+            name="sh_title"
+            label="title"
+            rules={[
+              { required: true, message: "Please input the shopify title!" },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          {" "}
+          <Form.Item
+            name="sh_body_html"
+            label="Description"
+            rules={[
+              {
+                required: true,
+                message: "Please input the shopify Description!",
+              },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          {" "}
+          <Form.Item
+            name="sh_vendor"
+            label="Vendor"
+            rules={[
+              { required: true, message: "Please input the shopify Vendor!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item
+            name="sh_product_type"
+            label="Product Type"
+            rules={[
+              {
+                required: true,
+                message: "Please select a GTIN",
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              placeholder="Select a Product Type "
+              optionFilterProp="children"
+              loading={loading}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              <Option value={"test"}>test</Option>
+              {/* {sh_product_type.map((product) => (
+                <Option key={product._id} value={product.gtin}>
+                  {product.sh_product_type}
+                </Option>
+              ))} */}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          {" "}
+          <Form.Item
+            name="sh_status"
+            label="Status"
+            rules={[
+              {
+                required: true,
+                message: "Please select at least one Status!",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Select Status"
+              options={[
+                { label: "Active", value: "active" },
+                { label: "Archived", value: "archived" },
+                { label: "Draft", value: "draft" },
+              ]}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+    );
+  };
+  const fyndiqDetails = () => {
+    return (
       <Row>
         <Col style={{ display: "none" }} span={24}>
           {" "}
@@ -57,16 +175,7 @@ export default function OnlineProductForm({
             <Input />
           </Form.Item>
         </Col>
-        <Col span={12}>
-          {" "}
-          <Form.Item
-            name="sku"
-            label="SKU"
-            rules={[{ required: true, message: "Please input the SKU!" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
+
         <Col span={12}>
           {" "}
           <Form.Item
@@ -141,24 +250,10 @@ export default function OnlineProductForm({
             label="Quantity"
             rules={[{ required: true, message: "Please input the quantity!" }]}
           >
-            <InputNumber min={0}/>
+            <InputNumber min={0} />
           </Form.Item>
         </Col>
-        <Col span={12}>
-          {" "}
-          <Form.Item
-            name="main_image"
-            label="Main Image"
-            rules={[
-              {
-                required: true,
-                message: "Please input the main image URL or upload an image!",
-              },
-            ]}
-          >
-            <ImageUploadOrUrl />
-          </Form.Item>
-        </Col>
+
         <Col span={12}>
           {" "}
           <Form.Item name="images" label="Images">
@@ -330,9 +425,14 @@ export default function OnlineProductForm({
             </Form.List>
           </Form.Item>
         </Col>
+
         <Col span={12}>
-          <Form.Item name="price" label="Price">
-            <Form.List name="price">
+          <Form.Item
+            name="original_price"
+            label="Original Price"
+            rules={[{ validator: validatePrices }]}
+          >
+            <Form.List name="original_price">
               {(fields, { add, remove }) => (
                 <>
                   {fields.map(({ key, name, fieldKey, ...restField }) => (
@@ -389,12 +489,8 @@ export default function OnlineProductForm({
           </Form.Item>
         </Col>
         <Col span={12}>
-          <Form.Item
-            name="original_price"
-            label="Original Price"
-            rules={[{ validator: validatePrices }]}
-          >
-            <Form.List name="original_price">
+          <Form.Item name="price" label="Price">
+            <Form.List name="price">
               {(fields, { add, remove }) => (
                 <>
                   {fields.map(({ key, name, fieldKey, ...restField }) => (
@@ -506,6 +602,64 @@ export default function OnlineProductForm({
               </>
             )}
           </Form.List>
+        </Col>
+      </Row>
+    );
+  };
+  const commonDetails = () => {
+    return (
+      <Row>
+        {" "}
+        <Col span={12}>
+          {" "}
+          <Form.Item
+            name="sku"
+            label="SKU"
+            rules={[{ required: true, message: "Please input the SKU!" }]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          {" "}
+          <Form.Item
+            name="main_image"
+            label="Main Image"
+            rules={[
+              {
+                required: true,
+                message: "Please input the main image URL or upload an image!",
+              },
+            ]}
+          >
+            <ImageUploadOrUrl />
+          </Form.Item>
+        </Col>
+      </Row>
+    );
+  };
+
+  return (
+    <Form form={form} layout="vertical">
+      <Row>
+        <Col span={24}>
+          <Tabs
+            defaultActiveKey={tab}
+            activeKey={tab}
+            items={items}
+            onChange={(t) => setTab(t)}
+            setTab
+            centered
+          />
+        </Col>
+        <Col span={24} style={{ display: tab === "0" ? "block" : "none" }}>
+          {commonDetails()}
+        </Col>
+        <Col span={24} style={{ display: tab === "1" ? "block" : "none" }}>
+          {fyndiqDetails()}
+        </Col>
+        <Col span={24} style={{ display: tab === "2" ? "block" : "none" }}>
+          {shopifyDetails()}
         </Col>
       </Row>
     </Form>

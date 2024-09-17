@@ -28,7 +28,7 @@ import axios from "axios";
 import ImageUploadOrUrl from "./ImageUploadOrUrl";
 import { BASE_URL } from "../utils/appBaseUrl";
 import PostButtons from "./PostButtons";
-import OnlineProductForm from "./OnlineProductForm";
+import OnlineProductForm from "./newProducts/OnlineProductForm";
 import AddNew from "./newProducts/AddNew";
 
 const OnlineProductTable = () => {
@@ -190,6 +190,36 @@ const OnlineProductTable = () => {
           </Button>
         </>
       ),
+    },
+    {
+      title: "Shopify Title",
+      dataIndex: "sh_title",
+      key: "sh_title",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify Vendor",
+      dataIndex: "sh_vendor",
+      key: "sh_vendor",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify  Status",
+      dataIndex: "sh_status",
+      key: "sh_status",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify product_type",
+      dataIndex: "sh_product_type",
+      key: "sh_product_type",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify Description",
+      dataIndex: "sh_body_html",
+      key: "sh_body_html",
+      render: (text) => text,
     },
   ];
 

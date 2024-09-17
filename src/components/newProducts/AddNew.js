@@ -4,7 +4,7 @@ import { Button, Modal, Form, Select, message, Checkbox } from "antd";
 import { addProduct, updateProduct } from "../../app/slices/onlineProductSlice";
 import axios from "axios";
 import { BASE_URL } from "../../utils/appBaseUrl";
-import OnlineProductForm from "../OnlineProductForm";
+import OnlineProductForm from "./OnlineProductForm";
 
 const { Option } = Select;
 
