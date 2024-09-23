@@ -5,6 +5,7 @@ import { Button } from "antd";
 
 const ExcelTransformer = () => {
   const [excelData, setExcelData] = useState([]);
+  const [rawData, setRawData] = useState([]);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -18,24 +19,25 @@ const ExcelTransformer = () => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       console.log("Parsed Excel Data:", jsonData);
-
-      const transformedData = jsonData.map((row) => transformRow(row));
-      console.log("Transformed Data:", transformedData);
-
-      setExcelData(transformedData);
+      setRawData(jsonData);
     };
 
     reader.readAsArrayBuffer(file);
   };
-
   const transformRow = (row) => {
-    console.log("Raw Row Data:", row);
+    const formatDescription = (text) => {
+      if (!text) return "";
+      // Replace newline characters with <br> tags
+      const formattedText = text.replace(/\n/g, "<br>");
+      // Wrap the entire text in <p> tags
+      return `<p>${formattedText}</p>`;
+    };
 
     return {
       sku: row["sku"]?.toString().trim() || "",
       brand: row["brand"]?.toString().trim() || "",
       titleSE: row["title:sv-SE"]?.toString().trim() || "",
-      descriptionSE: row["description:sv-SE"]?.toString().trim() || "",
+      descriptionSE: formatDescription(row["description:sv-SE"]),
       originalPriceSe: row["original_price:SE:SEK"]?.toString().trim() || "",
       stock: row["quantity"]?.toString().trim() || "",
       mainImage: row["main_image_url"]?.toString().trim() || "",
@@ -59,13 +61,44 @@ const ExcelTransformer = () => {
     };
   };
 
-  const downloadTransformedExcel = () => {
-    if (excelData.length === 0) {
+  const transformRowType2 = (row) => {
+    console.log("Raw Row Type 2 Data:", row);
+
+    return {
+      Handle: row["title:sv-SE"]?.toString().trim().replace(/\s+/g, "-") || "",
+      Title: row["title:sv-SE"]?.toString().trim() || "",
+      "Body (HTML)": row["description:sv-SE"]?.toString().trim() || "",
+      Vendor: row["brand"]?.toString().trim() || "",
+      "Product Category": "", // Empty for now
+      Tags: "", // Empty for now
+      "Variant SKU": row["sku"]?.toString().trim() || "",
+      "Variant Grams": "", // Empty for now
+      "Variant Inventory Qty": row["quantity"]?.toString().trim() || "",
+      "Variant Price": row["price:SE:SEK"]?.toString().trim() || "",
+      "Variant Compare At Price":
+        row["original_price:SE:SEK"]?.toString().trim() || "",
+      "Image Src": row["main_image_url"]?.toString().trim() || "",
+      "Image Position": "1",
+      "SEO Title": "", // Empty for now
+      "SEO Description": "", // Empty for now
+      Status:
+        row["status"]?.toString().trim().toLowerCase() === "for sale"
+          ? "active"
+          : "draft",
+    };
+  };
+
+  const downloadTransformedExcel = (transformationType) => {
+    if (rawData.length === 0) {
       alert("No data to download. Please upload an Excel file first.");
       return;
     }
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const transformedData = rawData.map(
+      transformationType === "cdon" ? transformRow : transformRowType2
+    );
+
+    const worksheet = XLSX.utils.json_to_sheet(transformedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Transformed Data");
 
@@ -76,17 +109,29 @@ const ExcelTransformer = () => {
     const data = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(data, "transformed_data.xlsx");
+    saveAs(data, `${transformationType}_transformed_data.xlsx`);
   };
 
   return (
     <div>
       <h1>Excel Transformer</h1>
       <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      {excelData.length > 0 && (
-        <Button type="primary" onClick={downloadTransformedExcel}>
-          Download CDON Transformed Excel
-        </Button>
+      {rawData.length > 0 && (
+        <div style={{ marginTop: "20px" }}>
+          <Button
+            style={{ marginRight: "20px" }}
+            type="primary"
+            onClick={() => downloadTransformedExcel("cdon")}
+          >
+            Download CDON
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => downloadTransformedExcel("shopify")}
+          >
+            Download Shopify
+          </Button>
+        </div>
       )}
     </div>
   );
