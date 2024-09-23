@@ -4,7 +4,6 @@ import { saveAs } from "file-saver";
 import { Button } from "antd";
 
 const ExcelTransformer = () => {
-  const [excelData, setExcelData] = useState([]);
   const [rawData, setRawData] = useState([]);
 
   const handleFileUpload = (event) => {
@@ -24,12 +23,11 @@ const ExcelTransformer = () => {
 
     reader.readAsArrayBuffer(file);
   };
+
   const transformRow = (row) => {
     const formatDescription = (text) => {
       if (!text) return "";
-      // Replace newline characters with <br> tags
       const formattedText = text.replace(/\n/g, "<br>");
-      // Wrap the entire text in <p> tags
       return `<p>${formattedText}</p>`;
     };
 
@@ -57,35 +55,55 @@ const ExcelTransformer = () => {
         row["category:2"] ? ";" + row["category:2"] : ""
       }`.trim(),
       priceSE: row["price:SE:SEK"]?.toString().trim() || "",
-      gtin: "", // GTIN is not present in the provided data, so leaving it empty
+      gtin: "",
     };
   };
 
   const transformRowType2 = (row) => {
-    console.log("Raw Row Type 2 Data:", row);
+    console.log("Processing row:", row);
 
-    return {
+    const baseRow = {
       Handle: row["title:sv-SE"]?.toString().trim().replace(/\s+/g, "-") || "",
       Title: row["title:sv-SE"]?.toString().trim() || "",
       "Body (HTML)": row["description:sv-SE"]?.toString().trim() || "",
       Vendor: row["brand"]?.toString().trim() || "",
-      "Product Category": "", // Empty for now
-      Tags: "", // Empty for now
+      "Product Category": row["category:1"]?.toString().trim() || "",
+      Tags: `${row["category:1"] || ""}${
+        row["category:2"] ? ", " + row["category:2"] : ""
+      }`.trim(),
       "Variant SKU": row["sku"]?.toString().trim() || "",
-      "Variant Grams": "", // Empty for now
+      "Variant Grams": "",
       "Variant Inventory Qty": row["quantity"]?.toString().trim() || "",
       "Variant Price": row["price:SE:SEK"]?.toString().trim() || "",
       "Variant Compare At Price":
         row["original_price:SE:SEK"]?.toString().trim() || "",
       "Image Src": row["main_image_url"]?.toString().trim() || "",
       "Image Position": "1",
-      "SEO Title": "", // Empty for now
-      "SEO Description": "", // Empty for now
+      "SEO Title": row["title:sv-SE"]?.toString().trim() || "",
+      "SEO Description":
+        row["description:sv-SE"]?.toString().trim().substring(0, 150) + "...",
       Status:
         row["status"]?.toString().trim().toLowerCase() === "for sale"
           ? "active"
           : "draft",
     };
+
+    const rows = [baseRow];
+
+    for (let i = 1; i <= 6; i++) {
+      const imageUrl = row[`other_image_url:${i}`];
+      if (imageUrl && imageUrl.trim() !== "") {
+        console.log(`Adding additional row for image ${i}:`, imageUrl);
+        rows.push({
+          Handle: baseRow.Handle,
+          "Image Src": imageUrl.trim(),
+          "Image Position": (i + 1).toString(),
+        });
+      }
+    }
+
+    console.log("Returning rows:", rows);
+    return rows;
   };
 
   const downloadTransformedExcel = (transformationType) => {
@@ -94,9 +112,14 @@ const ExcelTransformer = () => {
       return;
     }
 
-    const transformedData = rawData.map(
-      transformationType === "cdon" ? transformRow : transformRowType2
-    );
+    let transformedData;
+    if (transformationType === "cdon") {
+      transformedData = rawData.map(transformRow);
+    } else {
+      transformedData = rawData.flatMap(transformRowType2);
+    }
+
+    console.log(`Transformed ${transformationType} data:`, transformedData);
 
     const worksheet = XLSX.utils.json_to_sheet(transformedData);
     const workbook = XLSX.utils.book_new();
