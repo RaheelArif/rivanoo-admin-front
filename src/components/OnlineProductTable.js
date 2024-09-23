@@ -14,6 +14,7 @@ import {
   Checkbox,
   Row,
   Col,
+  Popconfirm,
 } from "antd";
 import {
   fetchProducts,
@@ -179,18 +180,7 @@ const OnlineProductTable = () => {
       key: "markets",
       render: (markets) => markets.join(", "),
     },
-    {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <>
-          <AddNew isEdit={true} record={record} />
-          <Button onClick={() => handleDelete(record._id)} danger>
-            Delete
-          </Button>
-        </>
-      ),
-    },
+
     {
       title: "Shopify Title",
       dataIndex: "sh_title",
@@ -221,6 +211,53 @@ const OnlineProductTable = () => {
       key: "sh_body_html",
       render: (text) => text,
     },
+    {
+      title: "Shopify Tags",
+      dataIndex: "sh_tags",
+      key: "sh_tags",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify Grams",
+      dataIndex: "sh_variant_grams",
+      key: "sh_variant_grams",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify Image Position",
+      dataIndex: "sh_image_position",
+      key: "sh_image_position",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify SEO Title",
+      dataIndex: "sh_seo_title",
+      key: "sh_seo_title",
+      render: (text) => text,
+    },
+    {
+      title: "Shopify SEO Description",
+      dataIndex: "sh_seo_description",
+      key: "sh_seo_description",
+      render: (text) => text,
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (text, record) => (
+        <>
+          <AddNew isEdit={true} record={record} />
+          <Popconfirm
+            title="Are you sure you want to delete this item?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger>Delete</Button>
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -245,3 +282,4 @@ const OnlineProductTable = () => {
 };
 
 export default OnlineProductTable;
+

@@ -1,54 +1,31 @@
 import React from "react";
-import { Button, Col, Form, Input, message, Row, Select, Upload } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Row,
+  Select,
+  Upload,
+} from "antd";
 import { useState } from "react";
 import { BASE_URL } from "../../utils/appBaseUrl";
 import axios from "axios";
-import Papa from "papaparse";
-import { UploadOutlined } from "@ant-design/icons";
-import ImageUploadOrUrl from "../ImageUploadOrUrl";
+
 const { Option } = Select;
 
 export default function ShoopifyForm({ form }) {
   const [productTypes, setProductTypes] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-
-  const [csvData, setCsvData] = useState(null);
-
-  const handleUpload = (file) => {
-    Papa.parse(file, {
-      header: true,
-      complete: (results) => {
-        const data = results.data[0]; // Assume first row has the product data
-        setCsvData(data); // Set the CSV data in state
-        populateForm(data); // Populate form with CSV data
-      },
-      error: (error) => {
-        message.error("Failed to parse CSV file");
-      },
-    });
-    return false;
-  };
-
-  const populateForm = (data) => {
-    console.log(data);
-    form.setFieldsValue({
-      sh_title: data["Title"],
-      sh_body_html: data["Body (HTML)"],
-      sh_vendor: data["Vendor"],
-      sh_product_type: data["Product Category"],
-      sh_status: data["Status"],
-      sh_tags: data["Tags"],
-      main_image: data["Image Src"],
-
-      //   price: data['Variant Price'],
-      //   sku: data['Variant SKU'],
-    });
-  };
+  const [tags, setTags] = useState([]); // For capturing entered tags
 
   const onFinish = (values) => {
     console.log("Form values:", values);
   };
+
   const fetchProductTypes = async () => {
     setLoading2(true);
     try {
@@ -61,36 +38,25 @@ export default function ShoopifyForm({ form }) {
       setLoading2(false);
     }
   };
+
   // Fetch product types when the dropdown is opened
   const handleDropdownVisibleChange = (open) => {
     if (open && productTypes.length === 0) {
       fetchProductTypes();
     }
   };
+
+  const handleTagsChange = (value) => {
+    setTags(value); // Update tags when user adds or removes
+    console.log("Tags selected: ", value);
+  };
+
   return (
     <Row>
-      {" "}
-      <Col span={24}>
-        {" "}
-        {/* CSV Upload Component */}
-        <Form.Item label="Upload CSV">
-          <Upload
-            beforeUpload={handleUpload}
-            accept=".csv"
-            showUploadList={false}
-          >
-            <Button icon={<UploadOutlined />}>Upload CSV</Button>
-          </Upload>
-        </Form.Item>
-        {/* <Button onClick={() => console.log(form.getFieldValue())}>
-          CheckValues
-        </Button> */}
-      </Col>
       <Col span={12}>
-        {" "}
         <Form.Item
           name="sh_title"
-          label="title"
+          label="Title"
           rules={[
             { required: true, message: "Please input the shopify title!" },
           ]}
@@ -99,7 +65,6 @@ export default function ShoopifyForm({ form }) {
         </Form.Item>
       </Col>
       <Col span={12}>
-        {" "}
         <Form.Item
           name="sh_body_html"
           label="Description"
@@ -114,13 +79,12 @@ export default function ShoopifyForm({ form }) {
         </Form.Item>
       </Col>
       <Col span={12}>
-        {" "}
         <Form.Item
           name="sh_vendor"
           label="Vendor"
-          rules={[
-            { required: true, message: "Please input the shopify Vendor!" },
-          ]}
+          // rules={[
+          //   { required: true, message: "Please input the shopify Vendor!" },
+          // ]}
         >
           <Input />
         </Form.Item>
@@ -129,15 +93,9 @@ export default function ShoopifyForm({ form }) {
         <Form.Item
           name="sh_product_type"
           label="Product Type"
-          rules={[
-            {
-              required: true,
-              message: "Please select a Product Type",
-            },
-          ]}
+          rules={[{ required: true, message: "Please select a Product Type" }]}
         >
-          <Input.TextArea />
-          {/* <Select
+          <Select
             showSearch
             placeholder="Select a Product Type"
             optionFilterProp="children"
@@ -152,22 +110,17 @@ export default function ShoopifyForm({ form }) {
                 {type.type}
               </Option>
             ))}
-          </Select> */}
+          </Select>
         </Form.Item>
       </Col>
       <Col span={12}>
-        {" "}
         <Form.Item
           name="sh_status"
           label="Status"
           rules={[
-            {
-              required: true,
-              message: "Please select at least one Status!",
-            },
+            { required: true, message: "Please select at least one Status!" },
           ]}
         >
-          {/* <Input /> */}
           <Select
             placeholder="Select Status"
             options={[
@@ -179,7 +132,66 @@ export default function ShoopifyForm({ form }) {
         </Form.Item>
       </Col>
       <Col span={12}>
-        <Form.Item name="sh_tags" label="Tags">
+        {/* Updated tags field */}
+        <Form.Item
+          name="sh_tags"
+          label="Tags"
+          rules={[
+            { required: true, message: "Please input at least one tag!" },
+          ]}
+        >
+          <Select
+            mode="tags"
+            placeholder="Enter or select tags"
+            value={tags}
+            onChange={handleTagsChange}
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item
+          name="sh_variant_grams"
+          label="Variant Grams"
+          rules={[
+            {
+              required: true,
+              message: "Please input the weight (grams) for this variant!",
+            },
+          ]}
+        >
+          <InputNumber
+            min={1}
+            placeholder="Enter weight in grams"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item
+          name="sh_image_position"
+          label="Image Position"
+          rules={[
+            {
+              required: true,
+              message: "Please input the image position!",
+            },
+          ]}
+        >
+          <InputNumber
+            min={1}
+            placeholder="Enter image position"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item name="sh_seo_title" label="SEO Title">
+          <Input.TextArea />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item name="sh_seo_description" label="SEO Description">
           <Input.TextArea />
         </Form.Item>
       </Col>

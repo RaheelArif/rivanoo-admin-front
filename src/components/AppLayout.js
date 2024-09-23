@@ -16,6 +16,7 @@ import OnlineProductTable from "./OnlineProductTable";
 import GtinTable from "./gtin/GtinTable";
 import ShopifyProductTable from "./shopify/ShopifyProductTable";
 import ProductTypeTable from "./ProductTypeTable/ProductTypeTable";
+import CsvChanges from "./csvConverter/CsvChanges";
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -77,6 +78,11 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: "Shopify P  Types",
             },
+            {
+              key: "11",
+              icon: <UserOutlined />,
+              label: "CSV Convert",
+            },
           ]}
           onClick={(v) => setSelected(v?.key)}
         />
@@ -115,6 +121,7 @@ const AppLayout = () => {
           {selected === "7" ? <OnlineProductTable /> : null}
           {selected === "8" ? <GtinTable /> : null}
           {selected === "10" ? <ProductTypeTable /> : null}
+          {selected === "11" ? <CsvChanges /> : null}
 
           {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
