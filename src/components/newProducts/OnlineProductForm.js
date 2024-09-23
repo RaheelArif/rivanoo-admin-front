@@ -13,9 +13,7 @@ import {
 } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import ImageUploadOrUrl from "../ImageUploadOrUrl";
-import { BASE_URL } from "../../utils/appBaseUrl";
-
-import axios from "axios";
+import ShoopifyForm from "./ShoopifyForm";
 const { Option } = Select;
 const MAX_IMAGES = 10;
 export default function OnlineProductForm({
@@ -27,30 +25,7 @@ export default function OnlineProductForm({
   loading,
 }) {
   const [tab, setTab] = useState("0");
-  const [productTypes, setProductTypes] = useState([]);
-  const [loading2, setLoading2] = useState(false);
-  const [fetchError, setFetchError] = useState(null);
 
-  // Fetch product types
-  const fetchProductTypes = async () => {
-    setLoading2(true);
-    try {
-      const response = await axios.get(`${BASE_URL}/product-types`);
-      setProductTypes(response.data?.productTypes);
-    } catch (error) {
-      setFetchError(error.message);
-      message.error("Failed to load product types");
-    } finally {
-      setLoading2(false);
-    }
-  };
-
-  // Fetch product types when the dropdown is opened
-  const handleDropdownVisibleChange = (open) => {
-    if (open && productTypes.length === 0) {
-      fetchProductTypes();
-    }
-  };
   if (selectedMarkets.length === 0) {
     return <p>Please select at least one market to display the form.</p>;
   }
@@ -93,103 +68,7 @@ export default function OnlineProductForm({
       label: "Cdon",
     },
   ];
-  const shopifyDetails = () => {
-    return (
-      <Row>
-        {" "}
-        <Col span={12}>
-          {" "}
-          <Form.Item
-            name="sh_title"
-            label="title"
-            rules={[
-              { required: true, message: "Please input the shopify title!" },
-            ]}
-          >
-            <Input.TextArea />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          {" "}
-          <Form.Item
-            name="sh_body_html"
-            label="Description"
-            rules={[
-              {
-                required: true,
-                message: "Please input the shopify Description!",
-              },
-            ]}
-          >
-            <Input.TextArea />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          {" "}
-          <Form.Item
-            name="sh_vendor"
-            label="Vendor"
-            rules={[
-              { required: true, message: "Please input the shopify Vendor!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            name="sh_product_type"
-            label="Product Type"
-            rules={[
-              {
-                required: true,
-                message: "Please select a Product Type",
-              },
-            ]}
-          >
-            <Select
-              showSearch
-              placeholder="Select a Product Type"
-              optionFilterProp="children"
-              loading={loading}
-              onDropdownVisibleChange={handleDropdownVisibleChange}
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {productTypes.map((type) => (
-                <Option key={type._id} value={type._id}>
-                  {type.type}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          {" "}
-          <Form.Item
-            name="sh_status"
-            label="Status"
-            rules={[
-              {
-                required: true,
-                message: "Please select at least one Status!",
-              },
-            ]}
-          >
-            <Select
-              placeholder="Select Status"
-              options={[
-                { label: "Active", value: "active" },
-                { label: "Archived", value: "archived" },
-                { label: "Draft", value: "draft" },
-              ]}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-    );
-  };
+
   const fyndiqDetails = () => {
     return (
       <Row>
@@ -687,7 +566,8 @@ export default function OnlineProductForm({
           {fyndiqDetails()}
         </Col>
         <Col span={24} style={{ display: tab === "2" ? "block" : "none" }}>
-          {shopifyDetails()}
+        <ShoopifyForm  form={form}/>
+          {/* {ShoopifyForm(form)} */}
         </Col>
       </Row>
     </Form>

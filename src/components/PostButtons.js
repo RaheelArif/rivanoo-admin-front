@@ -84,17 +84,10 @@ export default function PostButtons({ record }) {
       title: record.sh_title,
       body_html: createHtmlString(record.sh_body_html),
       vendor: record.sh_vendor,
+      image: record.main_image,
+      images: record.images,
       product_type: record.sh_product_type,
-      variants: [
-        {
-          option1: "Blue",
-          option2: "155",
-        },
-        {
-          option1: "Black",
-          option2: "159",
-        },
-      ],
+      variants: [],
       options: [
         {
           name: "Color",
