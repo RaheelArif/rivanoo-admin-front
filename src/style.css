@@ -9,30 +9,43 @@ body {
 }
 
 .red-row {
-    background-color: #b80101 !important; /* Light red background */
-    color: white;
-  }
-  .green-row {
-    background-color: #118302 !important; /* Light red background */
-    color: white;
+  background-color: #b80101 !important; /* Light red background */
+  color: white;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  border-radius: 5px;
+}
+.green-row {
+  background-color: #118302 !important; /* Light red background */
+  color: white;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  border-radius: 5px;
 
-  }
-  
-  .yellow-row {
-    background-color: #eeff00 !important; /* Light red background */
-  }
-  .ant-table-wrapper{
-    overflow-x: auto;
-  }
-  .top-20-modal.ant-modal{
-    top: 20px;
-  }
-  /* .ant-space-item{
+}
+
+.yellow-row {
+  background-color: #eeff00 !important; /* Light red background */
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  border-radius: 5px;
+
+}
+.ant-table-wrapper {
+  overflow-x: auto;
+}
+.top-20-modal.ant-modal {
+  top: 20px;
+}
+/* .ant-space-item{
     width: 100%;
   } */
-  .ant-col{
-    padding: 5px;
-  }
-  .radius-20-img{
-    border-radius: 20px ;
-  }
+.ant-col {
+  padding: 5px;
+}
+.radius-20-img {
+  border-radius: 20px;
+}

@@ -10,6 +10,7 @@ import {
   Select,
   Pagination,
   message,
+  Popconfirm,
 } from "antd";
 import {
   fetchMobileProducts,
@@ -152,21 +153,25 @@ const MobileProductTable = () => {
       title: "Release Date",
       dataIndex: "release_date",
       key: "release_date",
-      render: (date) => (date ? moment(date).format("YYYY-MM-DD") : "N/A"),
+      render: (date) => (date ? moment(date).format("MMM YYYY") : "N/A"),
     },
     { title: "Description", dataIndex: "description", key: "description" },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (text) => {
+      render: (text, record) => {
         const statusMapping = {
           coming_soon: "Coming Soon",
           ordered: "Ordered",
           complete: "Complete",
           canceled: "Canceled",
         };
-        return statusMapping[text] || "Unknown";
+        return (
+          (
+            <div className={getRowClassName(record)}>{statusMapping[text]}</div>
+          ) || "Unknown"
+        );
       },
     },
     {
@@ -202,13 +207,16 @@ const MobileProductTable = () => {
           >
             Edit
           </Button>
-          <Button
-            type="primary"
-            onClick={() => handleDelete(record._id)}
-            danger
+          <Popconfirm
+            title="Are you sure you want to delete this item?"
+            onConfirm={() => handleDelete(record._id)} // Function to execute when user confirms
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
+            <Button type="primary" danger>
+              Delete
+            </Button>
+          </Popconfirm>
         </>
       ),
     },
@@ -224,7 +232,7 @@ const MobileProductTable = () => {
         Add Mobile Product
       </Button>
       <Select
-        style={{ marginBottom: 16, width: 200 }}
+        style={{ marginBottom: 16, width: 200, margin: "0px  10px" }}
         placeholder="Select Status"
         onChange={handleStatusChange}
         value={selectedStatus} // Controlled value
@@ -243,7 +251,7 @@ const MobileProductTable = () => {
       >
         <Option value="">All Brand</Option>
         {brandOptions &&
-          brandOptions.map((b , bi) => {
+          brandOptions.map((b, bi) => {
             return <Option value={b.value}>{b.label}</Option>;
           })}
       </Select>
@@ -251,7 +259,7 @@ const MobileProductTable = () => {
         columns={columns}
         dataSource={mobileProducts}
         rowKey="_id"
-        rowClassName={getRowClassName}
+        // rowClassName={getRowClassName}
         pagination={false} // Disable the built-in pagination
       />
       <Pagination
@@ -266,7 +274,7 @@ const MobileProductTable = () => {
       />
       <Modal
         title={editingProduct ? "Edit Mobile Product" : "Add Mobile Product"}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
       >

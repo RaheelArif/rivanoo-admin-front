@@ -87,8 +87,8 @@ const AppLayout = () => {
           onClick={(v) => setSelected(v?.key)}
         />
       </Sider>
-      <Layout>
-        <Header
+      <Layout  style={{height:"100vh"}}>
+        {/* <Header
           style={{
             padding: 0,
             background: colorBgContainer,
@@ -104,12 +104,13 @@ const AppLayout = () => {
               height: 64,
             }}
           />
-        </Header>
+        </Header> */}
         <Content
           style={{
             margin: "24px 16px",
             padding: 24,
-            height: "100vh",
+            height: "100%",
+            overflowY: "auto",
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}
