@@ -9,30 +9,19 @@ body {
 }
 
 .red-row {
-  background-color: #b80101 !important; /* Light red background */
-  color: white;
-  padding: 5px;
-  display: flex;
-  justify-content: center;
-  border-radius: 5px;
+  color: #b80101 !important; /* Light red background */
+  font-size: 25px;
 }
 .green-row {
-  background-color: #118302 !important; /* Light red background */
-  color: white;
-  padding: 5px;
-  display: flex;
-  justify-content: center;
-  border-radius: 5px;
+  font-size: 25px;
 
+  color: #118302 !important; /* Light red background */
 }
 
 .yellow-row {
-  background-color: #eeff00 !important; /* Light red background */
-  padding: 5px;
-  display: flex;
-  justify-content: center;
-  border-radius: 5px;
+  font-size: 25px;
 
+  color: #eeff00 !important; /* Light red background */
 }
 .ant-table-wrapper {
   overflow-x: auto;
@@ -48,4 +37,35 @@ body {
 }
 .radius-20-img {
   border-radius: 20px;
+}
+.wp-img-t {
+  width: 25px;
+  cursor: pointer;
+}
+.wp-img-t:hover {
+  transform: scale(1.1);
+  transition: 0.4s;
+}
+.icons-cont {
+  display: flex;
+}
+.icons-cont svg {
+  font-size: 20px;
+  cursor: pointer;
+}
+.icons-cont .delete-icon:hover {
+  color: red;
+}
+.icons-cont svg:hover {
+  transform: scale(1.2);
+  transition: 0.4s;
+}
+.collapse-left0se-c svg{
+  color: white;
+  cursor: pointer;
+}
+.collapse-left0se-c{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }

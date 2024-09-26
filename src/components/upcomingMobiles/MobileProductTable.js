@@ -11,6 +11,7 @@ import {
   Pagination,
   message,
   Popconfirm,
+  Spin,
 } from "antd";
 import {
   fetchMobileProducts,
@@ -24,7 +25,13 @@ import {
 } from "../../app/slices/mobileProductSlice";
 import moment from "moment";
 import SmsSender from "./SmsSender";
-
+import whatsAppImg from "../../images/whatsapp.png";
+import { FaEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { TiTick } from "react-icons/ti";
+import { LoadingOutlined } from "@ant-design/icons";
+import { FcCancel, FcShipped } from "react-icons/fc";
+import { GiSandsOfTime } from "react-icons/gi";
 const { Option } = Select;
 const brandOptions = [
   { label: "huawei", value: "huawei" },
@@ -161,15 +168,14 @@ const MobileProductTable = () => {
       dataIndex: "status",
       key: "status",
       render: (text, record) => {
-        const statusMapping = {
-          coming_soon: "Coming Soon",
-          ordered: "Ordered",
-          complete: "Complete",
-          canceled: "Canceled",
-        };
         return (
           (
-            <div className={getRowClassName(record)}>{statusMapping[text]}</div>
+            <div className={getRowClassName(record)}>
+              {text === "coming_soon" ? <GiSandsOfTime style={{fontSize:"25px"}} color="orange" /> : null}
+              {text === "ordered" ? <FcShipped style={{fontSize:"25px"}}/> : null}
+              {text === "complete" ? <TiTick style={{fontSize:"25px"}}/> : null}
+              {text === "canceled" ? <FcCancel style={{fontSize:"25px"}}/> : null}
+            </div>
           ) || "Unknown"
         );
       },
@@ -190,38 +196,50 @@ const MobileProductTable = () => {
       dataIndex: "01",
       key: "01",
       render: (text, record) => (
-        <>
+        <div style={{ display: "flex" }}>
           <SmsSender record={record} />
-        </>
+          <img
+            className="wp-img-t"
+            onClick={() => handleWhatsAppClick(record)}
+            src={whatsAppImg}
+            alt=""
+          />
+        </div>
       ),
     },
     {
       title: "Action",
       key: "action",
       render: (text, record) => (
-        <>
-          <Button
-            type="primary"
+        <div className="icons-cont">
+          <FaEdit
             onClick={() => showModal(record)}
             style={{ marginRight: 8 }}
-          >
-            Edit
-          </Button>
+          />
+
           <Popconfirm
             title="Are you sure you want to delete this item?"
             onConfirm={() => handleDelete(record._id)} // Function to execute when user confirms
             okText="Yes"
             cancelText="No"
           >
-            <Button type="primary" danger>
-              Delete
-            </Button>
+            <MdDelete className="delete-icon" />
           </Popconfirm>
-        </>
+        </div>
       ),
     },
   ];
-
+  const handleWhatsAppClick = (record) => {
+    const messageBody = `Brand = ${record.brand}\n\n ${
+      record.description
+    } is  coming on ${moment(record.release_date).format(
+      "MMMM Do YYYY"
+    )} \n\n if already ordered please update status `;
+    const whatsappURL = `https://api.whatsapp.com/send?phone=+8613006881863&text=${encodeURIComponent(
+      messageBody
+    )}`;
+    window.open(whatsappURL, "_blank");
+  };
   return (
     <>
       <Button
@@ -238,7 +256,7 @@ const MobileProductTable = () => {
         value={selectedStatus} // Controlled value
       >
         <Option value="">All Status</Option>
-        <Option value="coming_soon">Coming Soon</Option>
+        <Option value="coming_soon">Upcoming</Option>
         <Option value="ordered">Ordered</Option>
         <Option value="complete">Complete</Option>
         <Option value="canceled">Canceled</Option>

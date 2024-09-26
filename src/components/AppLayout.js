@@ -17,6 +17,7 @@ import GtinTable from "./gtin/GtinTable";
 import ShopifyProductTable from "./shopify/ShopifyProductTable";
 import ProductTypeTable from "./ProductTypeTable/ProductTypeTable";
 import CsvChanges from "./csvConverter/CsvChanges";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
@@ -29,6 +30,16 @@ const AppLayout = () => {
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />
+        {/* <Button
+          type="text"
+          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          onClick={() => setCollapsed(!collapsed)}
+          style={{
+            fontSize: "16px",
+            width: 64,
+            height: 64,
+          }}
+        /> */}
         <h1 style={{ color: "white" }}>Rivanoo</h1>
         <Menu
           theme="dark"
@@ -86,8 +97,15 @@ const AppLayout = () => {
           ]}
           onClick={(v) => setSelected(v?.key)}
         />
+        <div className="collapse-left0se-c">
+          {collapsed ? (
+            <FaArrowRight onClick={() => setCollapsed(!collapsed)} />
+          ) : (
+            <FaArrowLeft onClick={() => setCollapsed(!collapsed)} />
+          )}
+        </div>
       </Sider>
-      <Layout  style={{height:"100vh"}}>
+      <Layout style={{ height: "100vh" }}>
         {/* <Header
           style={{
             padding: 0,

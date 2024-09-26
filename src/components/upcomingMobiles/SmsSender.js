@@ -3,6 +3,7 @@ import { Button, message } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../../utils/appBaseUrl";
 import moment from "moment";
+import smsImg from "../../images/left.png";
 
 const SmsSender = ({ record }) => {
   const [response, setResponse] = useState("");
@@ -33,13 +34,13 @@ const SmsSender = ({ record }) => {
   };
 
   return (
-    <Button
-      type="primary"
+    <img
+      className="wp-img-t"
       onClick={() => sendMessage(record)}
       style={{ marginRight: 8 }}
-    >
-      Sms reminder
-    </Button>
+      src={smsImg}
+      alt=""
+    />
   );
 };
 
