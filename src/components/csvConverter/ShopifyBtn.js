@@ -201,13 +201,13 @@ const ShopifyBtn = ({ rawData }) => {
     setIsTableVisible(true);
   };
 
-  const handleDownload = () => {
-    if (selectedRows.length === 0) {
-      alert("Please select at least one row to download.");
+  const handleDownload = (dataToDownload) => {
+    if (dataToDownload.length === 0) {
+      alert("No data to download.");
       return;
     }
 
-    const transformedData = selectedRows.flatMap(transformRowType2);
+    const transformedData = dataToDownload.flatMap(transformRowType2);
 
     const worksheet = XLSX.utils.json_to_sheet(transformedData);
     const workbook = XLSX.utils.book_new();
@@ -238,8 +238,15 @@ const ShopifyBtn = ({ rawData }) => {
             columns={columns}
             dataSource={rawData.map((item, index) => ({ ...item, key: index }))}
           />
-          <Button color="black" type="primary" onClick={handleDownload}>
+          <Button
+            type="primary"
+            onClick={() => handleDownload(selectedRows)}
+            style={{ marginRight: "10px" }}
+          >
             Download Selected Rows
+          </Button>
+          <Button danger type="primary" onClick={() => handleDownload(rawData)}>
+            Download All Rows
           </Button>
         </>
       )}
