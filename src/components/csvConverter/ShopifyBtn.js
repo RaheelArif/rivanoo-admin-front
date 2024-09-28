@@ -12,27 +12,29 @@ const ShopifyBtn = ({ rawData }) => {
       Title: row["title:sv-SE"]?.toString().trim() || "",
       "Body (HTML)": row["description:sv-SE"]?.toString().trim() || "",
       Vendor: row["brand"]?.toString().trim() || "",
-      "Product Category": row["category:1"]?.toString().trim() || "",
+      "Product Category": "1549",
       Tags: generateTags(row["title:sv-SE"] || ""),
+      Published: "TRUE",
+      "Option1 Name": "Title",
+      "Option1 Value": "Default Title",
       "Variant SKU": row["sku"]?.toString().trim() || "",
       "Variant Grams": "50",
-      "Variant Price": row["price:SE:SEK"]?.toString().trim() || "",
       "Variant Compare At Price":
-        row["original_price:SE:SEK"]?.toString().trim() || "",
+      row["original_price:SE:SEK"]?.toString().trim() || "",
+      "Variant Price": row["price:SE:SEK"]?.toString().trim() || "",
+      "Variant Inventory Tracker": "shopify",
+      "Variant Inventory Qty": row["quantity"]?.toString().trim() || "1000",
+      "Variant Inventory Policy": "deny",
+      "Variant Taxable": "false",
       "Image Src": row["main_image_url"]?.toString().trim() || "",
       "Image Position": "1",
       "SEO Title": generateCorrectedTitle(row["title:sv-SE"] || ""),
       "SEO Description": generateDescription(row["title:sv-SE"] || ""),
       Status:
-        row["status"]?.toString().trim().toLowerCase() === "for sale"
-          ? "active"
-          : "draft",
-      "Option1 Name": "Title",
-      "Option1 Value": "Default Title",
-      "Variant Inventory Tracker": "shopify",
-      "Variant Inventory Qty": row["quantity"]?.toString().trim() || "1000",
-      "Variant Inventory Policy": "deny",
-      "Variant Taxable": "false",
+      row["status"]?.toString().trim().toLowerCase() === "for sale"
+      ? "active"
+      : "draft",
+
     };
 
     const rows = [baseRow];

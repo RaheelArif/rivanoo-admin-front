@@ -33,7 +33,7 @@ const CdonBtn = ({ rawData }) => {
       deliveryTimeMaxSe: row["shipping_time:max:SE"]?.toString().trim() || "",
       category: `5468`,
       priceSE: row["price:SE:SEK"]?.toString().trim() || "",
-      gtin: "",
+      gtin: row["gtin"]?.toString().trim() || "",
     };
   };
 
