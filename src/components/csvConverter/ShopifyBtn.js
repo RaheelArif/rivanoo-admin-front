@@ -1,12 +1,30 @@
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { Button } from "antd";
+import { Button, Table } from "antd";
 
 const ShopifyBtn = ({ rawData }) => {
-  const transformRowType2 = (row) => {
-    console.log("Processing row:", row);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [isTableVisible, setIsTableVisible] = useState(false);
 
+  const columns = [
+    {
+      title: "Title",
+      dataIndex: "title:sv-SE",
+      key: "title:sv-SE",
+    },
+    {
+      title: "SKU",
+      dataIndex: "sku",
+      key: "sku",
+    },
+    {
+      title: "Price",
+      dataIndex: "price:SE:SEK",
+      key: "price:SE:SEK",
+    },
+  ];
+  const transformRowType2 = (row) => {
     const baseRow = {
       Handle: row["title:sv-SE"]?.toString().trim().replace(/\s+/g, "-") || "",
       Title: row["title:sv-SE"]?.toString().trim() || "",
@@ -20,7 +38,7 @@ const ShopifyBtn = ({ rawData }) => {
       "Variant SKU": row["sku"]?.toString().trim() || "",
       "Variant Grams": "50",
       "Variant Compare At Price":
-      row["original_price:SE:SEK"]?.toString().trim() || "",
+        row["original_price:SE:SEK"]?.toString().trim() || "",
       "Variant Price": row["price:SE:SEK"]?.toString().trim() || "",
       "Variant Inventory Tracker": "shopify",
       "Variant Inventory Qty": row["quantity"]?.toString().trim() || "1000",
@@ -31,10 +49,9 @@ const ShopifyBtn = ({ rawData }) => {
       "SEO Title": generateCorrectedTitle(row["title:sv-SE"] || ""),
       "SEO Description": generateDescription(row["title:sv-SE"] || ""),
       Status:
-      row["status"]?.toString().trim().toLowerCase() === "for sale"
-      ? "active"
-      : "draft",
-
+        row["status"]?.toString().trim().toLowerCase() === "for sale"
+          ? "active"
+          : "draft",
     };
 
     const rows = [baseRow];
@@ -42,7 +59,6 @@ const ShopifyBtn = ({ rawData }) => {
     for (let i = 1; i <= 6; i++) {
       const imageUrl = row[`other_image_url:${i}`];
       if (imageUrl && imageUrl.trim() !== "") {
-        console.log(`Adding additional row for image ${i}:`, imageUrl);
         rows.push({
           Handle: baseRow.Handle,
           "Image Src": imageUrl.trim(),
@@ -51,7 +67,6 @@ const ShopifyBtn = ({ rawData }) => {
       }
     }
 
-    console.log("Returning rows:", rows);
     return rows;
   };
 
@@ -172,17 +187,27 @@ const ShopifyBtn = ({ rawData }) => {
       .map((tag) => tag.replace(/\b(1 pack|2 pack|3 pack)\b/gi, "").trim())
       .join(", ");
   };
-  const downloadTransformedExcel = (transformationType) => {
-    if (rawData.length === 0) {
-      alert("No data to download. Please upload an Excel file first.");
+
+  const transformedData = rawData.flatMap(transformRowType2);
+
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedRows(selectedRows);
+    },
+    selectedRowKeys: selectedRows.map((row) => row.key),
+  };
+
+  const handleShowTable = () => {
+    setIsTableVisible(true);
+  };
+
+  const handleDownload = () => {
+    if (selectedRows.length === 0) {
+      alert("Please select at least one row to download.");
       return;
     }
 
-    let transformedData;
-
-    transformedData = rawData.flatMap(transformRowType2);
-
-    console.log(`Transformed ${transformationType} data:`, transformedData);
+    const transformedData = selectedRows.flatMap(transformRowType2);
 
     const worksheet = XLSX.utils.json_to_sheet(transformedData);
     const workbook = XLSX.utils.book_new();
@@ -195,13 +220,30 @@ const ShopifyBtn = ({ rawData }) => {
     const data = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(data, `${transformationType}_transformed_data.xlsx`);
+    saveAs(data, "shopify_transformed_data.xlsx");
   };
 
   return (
-    <Button type="primary" onClick={() => downloadTransformedExcel("shopify")}>
-      Download Shopify
-    </Button>
+    <>
+      <Button type="primary" onClick={handleShowTable}>
+        Show Shopify Data
+      </Button>
+      {isTableVisible && (
+        <>
+          <Table
+            rowSelection={{
+              type: "checkbox",
+              ...rowSelection,
+            }}
+            columns={columns}
+            dataSource={rawData.map((item, index) => ({ ...item, key: index }))}
+          />
+          <Button color="black" type="primary" onClick={handleDownload}>
+            Download Selected Rows
+          </Button>
+        </>
+      )}
+    </>
   );
 };
 
