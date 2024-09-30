@@ -71,61 +71,72 @@ const ShopifyBtn = ({ rawData }) => {
   };
 
   const generateDescription = (productName) => {
-    const productNameLower = productName.toLowerCase();
-    let model = productName;
+    const normalizedProductName = productName.toLowerCase(); // Normalize to lowercase for comparison
 
-    if (productNameLower.includes("1 pack screen & 1 pack lens")) {
-      model = productName.replace(/1 pack screen & 1 pack lens/i, "").trim();
-    } else if (productNameLower.includes("2 pack screen & 2 pack lens")) {
-      model = productName.replace(/2 pack screen & 2 pack lens/i, "").trim();
-    } else if (productNameLower.includes("2 pack screen & 1 pack lens")) {
-      model = productName.replace(/2 pack screen & 1 pack lens/i, "").trim();
-    } else if (productNameLower.includes("pack")) {
-      model = productName.replace(/\d+\s*pack.*/i, "").trim();
+    // Extracting the model for description generation
+    let model = "Unknown Model";
+
+    if (normalizedProductName.includes("1-pack")) {
+      model = productName
+        .split(/1[-\s]?Pack/i)[1]
+        .split("Skärmskydd")[0]
+        .trim();
+    } else if (normalizedProductName.includes("2-pack")) {
+      model = productName
+        .split(/2[-\s]?Pack/i)[1]
+        .split("Skärmskydd")[0]
+        .trim();
     }
 
-    return (
-      `Skydda din ${model} med vårt högkvalitativa härdat glas skärmskydd. ` +
-      "Ger full täckning och skydd mot smuts, fläckar och repor. " +
-      "Oleofob beläggning mot fingeravtryck, enkel installation med perfekt passform. " +
-      "Inkluderar även kameraskydd och rengöringskit. " +
-      `Idealiskt för din ${model}. Köp idag och skydda din enhet!`
-    );
+    // Generating the SEO description
+    if (
+      normalizedProductName.includes("1-pack") ||
+      normalizedProductName.includes("2-pack")
+    ) {
+      return (
+        `Skydda din ${model} med vårt högkvalitativa härdat glas skärmskydd. ` +
+        "Ger full täckning och skydd mot smuts, fläckar och repor. " +
+        "Oleofob beläggning mot fingeravtryck, enkel installation med perfekt passform. " +
+        "Inkluderar även kameraskydd och rengöringskit. " +
+        `Idealiskt för din ${model}. Köp idag och skydda din enhet!`
+      );
+    }
+
+    return `Skydda din ${model} med vårt högkvalitativa härdat glas skärmskydd.`;
   };
 
   const generateCorrectedTitle = (productName) => {
     const normalizedProductName = productName.trim().toUpperCase();
+    let model = "";
 
-    if (normalizedProductName.includes("1 PACK SCREEN & 1 PACK LENS")) {
-      const model = normalizedProductName
-        .replace(/1 PACK SCREEN & 1 PACK LENS/i, "")
-        .trim();
-      return `1-Pack ${toTitleCase(
-        model
-      )} Skärmskydd & 1-Pack Linsskydd i Härdat Glas`;
-    } else if (normalizedProductName.includes("2 PACK SCREEN & 2 PACK LENS")) {
-      const model = normalizedProductName
-        .replace(/2 PACK SCREEN & 2 PACK LENS/i, "")
-        .trim();
-      return `2-Pack ${toTitleCase(
-        model
-      )} Skärmskydd & 2-Pack Linsskydd i Härdat Glas`;
-    } else if (normalizedProductName.includes("2 PACK SCREEN & 1 PACK LENS")) {
-      const model = normalizedProductName
-        .replace(/2 PACK SCREEN & 1 PACK LENS/i, "")
-        .trim();
-      return `2-Pack ${toTitleCase(
-        model
-      )} Skärmskydd & 1-Pack Linsskydd i Härdat Glas`;
-    } else if (normalizedProductName.includes("1 PACK")) {
-      const model = normalizedProductName.replace(/1 PACK/i, "").trim();
-      return `${toTitleCase(model)} Skärmskydd i Härdat Glas - 1-Pack`;
+    // Handle different pack configurations and extract the model accordingly
+    if (normalizedProductName.includes("1 PACK")) {
+      model = productName.split(/1[-\s]?Pack/i)[1];
+      if (model) {
+        model = model.split("Skärmskydd")[0].trim();
+        return `1-Pack ${toTitleCase(model)} Skärmskydd i Härdat Glas`;
+      }
     } else if (normalizedProductName.includes("2 PACK")) {
-      const model = normalizedProductName.replace(/2 PACK/i, "").trim();
-      return `${toTitleCase(model)} Skärmskydd i Härdat Glas - 2-Pack`;
+      model = productName.split(/2[-\s]?Pack/i)[1];
+      if (model) {
+        model = model.split("Skärmskydd")[0].trim();
+        return `2-Pack ${toTitleCase(model)} Skärmskydd i Härdat Glas`;
+      }
+    } else if (normalizedProductName.includes("&")) {
+      // Handle cases with "&" in the product name
+      const parts = normalizedProductName.split("&").map((part) => part.trim());
+      const mainModel = parts[0].split("SKÄRMSKYDD")[0].trim(); // Get the model before "Skärmskydd"
+      return `${toTitleCase(mainModel)} Skärmskydd & ${parts[1]} i Härdat Glas`;
     } else {
-      return toTitleCase(productName);
+      // Handle cases that don't match specific pack conditions
+      const modelTitle = normalizedProductName
+        .split(" - ")[0]
+        .split("SKÄRMSKYDD")[0]
+        .trim(); // Get the main model before "Skärmskydd"
+      return `${toTitleCase(modelTitle)} Skärmskydd i Härdat Glas`;
     }
+
+    return "Unknown Configuration"; // Default return if no conditions match
   };
 
   const toTitleCase = (str) => {
@@ -135,6 +146,7 @@ const ShopifyBtn = ({ rawData }) => {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
+
   const brandTags = {
     Huawei: "",
     Xiaomi: "",
