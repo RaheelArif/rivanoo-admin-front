@@ -165,40 +165,42 @@ const ShopifyBtn = ({ rawData }) => {
   const generateTags = (productName) => {
     const tags = [];
     const normalizedProductName = productName.toLowerCase();
-
+  
     // Add brand tag
+    let brandInName = null;
     Object.keys(brandTags).forEach((brand) => {
       if (normalizedProductName.includes(brand.toLowerCase())) {
         tags.push(brand);
+        brandInName = brand; // Store the brand to avoid duplication in the model tag
       }
     });
-
+  
     // Add common tags
     tags.push("Type_Skärmskydd");
-
+  
     // Extract model information
-    const modelMatch = normalizedProductName.match(/model-(.*?)(\b|$)/);
+    const modelMatch = productName.match(/1[-\s]?Pack\s+([\w\s]+?)\s+Skärmskydd/i) || 
+                       productName.match(/2[-\s]?Pack\s+([\w\s]+?)\s+Skärmskydd/i);
+  
     if (modelMatch) {
-      let model = modelMatch[1].replace(/-/g, " ").trim();
-      const brandInName = Object.keys(brandTags).find((brand) =>
-        normalizedProductName.includes(brand.toLowerCase())
-      );
-      const modelTag = brandInName
-        ? `model-${brandInName} ${model}`
-        : `model-${model}`;
+      let model = modelMatch[1].trim();
+      if (brandInName && model.toLowerCase().startsWith(brandInName.toLowerCase())) {
+        // Remove brand from model if it's duplicated
+        model = model.replace(new RegExp(`^${brandInName}`, 'i'), '').trim();
+      }
+      const modelTag = `model-${brandInName ? brandInName + ' ' + model : model}`;
       tags.push(modelTag);
-    } else {
-      tags.push(`model-${normalizedProductName.replace(/-/g, " ")}`);
     }
-
+  
     // Add Skärmskydd tag
     tags.push("Skärmskydd");
-
+  
     // Remove pack information and join tags
     return tags
       .map((tag) => tag.replace(/\b(1 pack|2 pack|3 pack)\b/gi, "").trim())
       .join(", ");
   };
+  
 
   const transformedData = rawData.flatMap(transformRowType2);
 
