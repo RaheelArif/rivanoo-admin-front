@@ -200,29 +200,38 @@ const dataProcessor = {
 
 // File Operations
 const fileOperations = {
-  downloadCSV: (csvData, filename) => {
-    const blob = new Blob([utils.stringToArrayBuffer(csvData)], {
-      type: "text/csv;charset=utf-8;",
-    });
-    saveAs(blob, filename);
-  },
-  createCSV: (data) => {
-    // Create rows with model information
-    const rows = data.flatMap((item) =>
-      item.models.map((model) => ({
-        original_title: item.originalTitle,
-        model: model.model,
-        quantity: model.quantity,
-        product_type: model.productType,
-      }))
-    );
-
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    return XLSX.write(wb, { bookType: "csv", type: "binary" });
-  },
-};
+    downloadCSV: (csvData, filename) => {
+      const blob = new Blob([utils.stringToArrayBuffer(csvData)], {
+        type: "text/csv;charset=utf-8;",
+      });
+      saveAs(blob, filename);
+    },
+    createCSV: (data) => {
+      // Create rows with model information
+      const rows = [];
+      const addedModels = new Set(); // Set to track unique models added to the CSV
+  
+      data.forEach((item) => {
+        item.models.forEach((model) => {
+          if (!addedModels.has(model.model)) {
+            addedModels.add(model.model); // Add model to the set
+            rows.push({
+              original_title: item.originalTitle,
+              model: model.model,
+            //   quantity: model.quantity,
+            //   product_type: model.productType,
+            });
+          }
+        });
+      });
+  
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      return XLSX.write(wb, { bookType: "csv", type: "binary" });
+    },
+  };
+  
 
 const ExcelUploader = () => {
   const [csvData, setCsvData] = useState([]);
