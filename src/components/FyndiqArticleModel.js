@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spin, Pagination, Tag } from "antd";
+import { Table, Spin, Pagination, Tag, Button } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../utils/appBaseUrl";
+import Papa from "papaparse"; // Import papaparse
 
 const ArticlesTable = () => {
   const [articles, setArticles] = useState([]);
@@ -20,9 +21,7 @@ const ArticlesTable = () => {
           limit: pageSize, // Send limit and page as query params
         },
       });
-      //   console.log(response.data.data)
       setArticles(response.data?.data || []); // Adjust based on your backend response structure
- // Set total count if available in the response
     } catch (error) {
       console.error("Error fetching articles:", error);
     } finally {
@@ -44,7 +43,7 @@ const ArticlesTable = () => {
       render: (text, record) => record.title?.[0]?.value || "N/A", // Adjust if title is an array of objects
     },
     {
-      title: "model_name",
+      title: "Model Name",
       dataIndex: "model_name",
       key: "model_name",
       render: (text, record) => (
@@ -56,6 +55,27 @@ const ArticlesTable = () => {
   // Handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page); // Update the current page
+  };
+
+  // Download CSV file
+  const downloadCSV = () => {
+    const csvData = articles.map(article => ({
+      title: article.title?.[0]?.value || "N/A",
+      model_name: article.model_name || "N/A",
+      sku: article.sku || "N/A", // Assuming `sku` is the id you want to include
+    }));
+
+    const csv = Papa.unparse(csvData);
+
+    // Create a blob and download the file
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `articles_page_${currentPage}.csv`); // Filename with page number
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -77,6 +97,10 @@ const ArticlesTable = () => {
             total={total}
             onChange={handlePageChange} // Trigger on page change
           />
+          {/* Button to download CSV */}
+          <Button type="primary" onClick={downloadCSV}>
+            Download CSV
+          </Button>
         </>
       )}
     </div>
