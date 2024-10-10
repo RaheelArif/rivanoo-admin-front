@@ -63,6 +63,7 @@ const ArticlesTable = () => {
       title: article.title?.[0]?.value || "N/A",
       model_name: article.model_name || "N/A",
       sku: article.sku || "N/A", // Assuming `sku` is the id you want to include
+      id: article.id || "N/A", // Assuming `sku` is the id you want to include
     }));
 
     const csv = Papa.unparse(csvData);

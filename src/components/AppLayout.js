@@ -20,6 +20,7 @@ import CsvChanges from "./csvConverter/CsvChanges";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import ExcelUploader from "./missingModels/ExcelUploader";
 import FyndiqArtcileModel from "./FyndiqArticleModel"
+import NewMobileComingTable from "./unverifiedComingMobiles/NewMobileComingTable";
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -70,9 +71,14 @@ const AppLayout = () => {
               label: "order Products",
             },
             {
-              key: "6",
+              key: "14",
               icon: <UserOutlined />,
               label: "Upcoming Mobiles",
+            },
+            {
+              key: "6",
+              icon: <UserOutlined />,
+              label: "veified Mobiles",
             },
             {
               key: "7",
@@ -154,6 +160,7 @@ const AppLayout = () => {
           {selected === "11" ? <CsvChanges /> : null}
           {selected === "12" ? <ExcelUploader /> : null}
           {selected === "13" ? <FyndiqArtcileModel /> : null}
+          {selected === "14" ? <NewMobileComingTable /> : null}
 
           {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
