@@ -1,17 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Table,
-  Button,
+  Select,
+  Pagination,
   Modal,
   Form,
   Input,
   DatePicker,
-  Select,
-  Pagination,
   message,
-  Popconfirm,
   Spin,
+  Button,
 } from "antd";
 import {
   fetchMobileProducts,
@@ -24,16 +22,10 @@ import {
   setPageSize,
 } from "../../app/slices/mobileProductSlice";
 import moment from "moment";
-import SmsSender from "./SmsSender";
-
-import { FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-import { TiTick } from "react-icons/ti";
-import { LoadingOutlined } from "@ant-design/icons";
-import { FcCancel, FcShipped } from "react-icons/fc";
-import { GiSandsOfTime } from "react-icons/gi";
 import CompleteStatusTable from "./CompleteStatusTable";
 import UnCompleteTable from "./UnCompleteTable";
+import { debounce } from "lodash"; // To debounce the search input
+
 const { Option } = Select;
 const brandOptions = [
   { label: "huawei", value: "huawei" },
@@ -46,6 +38,7 @@ const brandOptions = [
   { label: "oneplus", value: "oneplus" },
   { label: "vivo", value: "vivo" },
 ];
+
 const MobileProductTable = () => {
   const dispatch = useDispatch();
   const {
@@ -59,9 +52,16 @@ const MobileProductTable = () => {
     total,
   } = useSelector((state) => state.mobileProducts);
 
-  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [editingProduct, setEditingProduct] = React.useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+
+  // Debounce function for search input
+  const handleSearchChange = debounce((value) => {
+    setSearchTerm(value);
+    dispatch(setPage(1)); // Reset to the first page on search
+  }, 300); // 300ms delay for debouncing
 
   useEffect(() => {
     dispatch(
@@ -70,9 +70,17 @@ const MobileProductTable = () => {
         brand: selectedBrand,
         page: currentPage,
         size: pageSize,
+        search: searchTerm, // Pass the search term to the fetch action
       })
     );
-  }, [dispatch, selectedStatus, currentPage, pageSize, selectedBrand]);
+  }, [
+    dispatch,
+    selectedStatus,
+    currentPage,
+    pageSize,
+    selectedBrand,
+    searchTerm,
+  ]);
 
   useEffect(() => {
     if (status === "failed" && error) {
@@ -124,9 +132,10 @@ const MobileProductTable = () => {
     dispatch(setSelectedStatus(value));
     dispatch(setPage(1)); // Reset to the first page when status changes
   };
+
   const handleBrandChange = (value) => {
     dispatch(setSelectedBrands(value));
-    dispatch(setPage(1)); // Reset to the first page when status changes
+    dispatch(setPage(1)); // Reset to the first page when brand changes
   };
 
   const handlePageChange = (page) => {
@@ -147,11 +156,17 @@ const MobileProductTable = () => {
       >
         Add Mobile Product
       </Button>
+      <Input
+        placeholder="Search by name"
+        style={{ marginBottom: 16, width: 300 , marginLeft: "10px" }}
+        onChange={(e) => handleSearchChange(e.target.value)}
+      />
+
       <Select
         style={{ marginBottom: 16, width: 200, margin: "0px  10px" }}
         placeholder="Select Status"
         onChange={handleStatusChange}
-        value={selectedStatus} // Controlled value
+        value={selectedStatus}
       >
         <Option value="">All Status</Option>
         <Option value="coming_soon">Upcoming</Option>
@@ -159,18 +174,21 @@ const MobileProductTable = () => {
         <Option value="complete">Complete</Option>
         <Option value="canceled">Canceled</Option>
       </Select>
+
       <Select
         style={{ marginBottom: 16, width: 200 }}
         placeholder="Select Brand"
         onChange={handleBrandChange}
-        value={selectedBrand} // Controlled value
+        value={selectedBrand}
       >
         <Option value="">All Brand</Option>
-        {brandOptions &&
-          brandOptions.map((b, bi) => {
-            return <Option value={b.value}>{b.label}</Option>;
-          })}
+        {brandOptions.map((b) => (
+          <Option key={b.value} value={b.value}>
+            {b.label}
+          </Option>
+        ))}
       </Select>
+
       {selectedStatus === "complete" ? (
         <CompleteStatusTable
           showModal={showModal}
@@ -191,10 +209,9 @@ const MobileProductTable = () => {
         total={total}
         onChange={handlePageChange}
         showSizeChanger={false}
-        // onShowSizeChange={handlePageSizeChange}
-        // pageSizeOptions={['10', '20', '30', '40']}
         style={{ marginTop: 16, textAlign: "center" }}
       />
+
       <Modal
         title={editingProduct ? "Edit Mobile Product" : "Add Mobile Product"}
         open={isModalVisible}
@@ -215,6 +232,7 @@ const MobileProductTable = () => {
               ))}
             </Select>
           </Form.Item>
+
           <Form.Item
             name="release_date"
             label="Release Date"
@@ -224,6 +242,7 @@ const MobileProductTable = () => {
           >
             <DatePicker format="YYYY-MM-DD" />
           </Form.Item>
+
           <Form.Item
             name="description"
             label="Description"
@@ -233,6 +252,7 @@ const MobileProductTable = () => {
           >
             <Input />
           </Form.Item>
+
           <Form.Item
             name="status"
             label="Status"

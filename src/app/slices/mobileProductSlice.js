@@ -2,24 +2,27 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { BASE_URL } from "../../utils/appBaseUrl";
 
-// Define async thunks for CRUD operations
+// Define initial state
 let initialState = {
   items: [],
   status: "idle",
   error: null,
   selectedStatus: "",
   selectedBrand: "",
+  searchQuery: "", // New state for search
   currentPage: 1,
   pageSize: 10,
 };
 
+// Define async thunks for CRUD operations with search
 export const fetchMobileProducts = createAsyncThunk(
   "mobileProducts/fetchMobileProducts",
-  async ({ status, brand, page = 1, size = 10 }) => {
+  async ({ status, brand, search, page = 1, size = 10 }) => {
     const response = await axios.get(`${BASE_URL}/mobile_product`, {
       params: {
         status,
         brand,
+        search, // Include search in the API request
         page,
         size,
       },
@@ -69,7 +72,10 @@ const mobileProductSlice = createSlice({
     setSelectedBrands: (state, action) => {
       state.selectedBrand = action.payload;
     },
-
+    setSearchQuery: (state, action) => {
+      // New action for search query
+      state.searchQuery = action.payload;
+    },
     setPage: (state, action) => {
       state.currentPage = action.payload;
     },
@@ -108,6 +114,12 @@ const mobileProductSlice = createSlice({
   },
 });
 
-export const { setSelectedStatus, setPage, setPageSize, setSelectedBrands } =
-  mobileProductSlice.actions;
+// Export actions and reducer
+export const {
+  setSelectedStatus,
+  setPage,
+  setPageSize,
+  setSelectedBrands,
+  setSearchQuery, // Export setSearchQuery action
+} = mobileProductSlice.actions;
 export default mobileProductSlice.reducer;
