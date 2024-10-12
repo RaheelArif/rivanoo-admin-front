@@ -2,25 +2,25 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { BASE_URL } from "../../utils/appBaseUrl";
 
-// Define initial state
+// Define initial state for upcoming products
 let initialState = {
   items: [],
   status: "idle",
   error: null,
   selectedStatus: "",
-  selectedBrand: "iphone",
+  selectedBrand: "",
   searchQuery: "", // New state for search
   currentPage: 1,
   pageSize: 10,
 };
 
-// Define async thunks for CRUD operations with search
-export const fetchMobileProducts = createAsyncThunk(
-  "mobileProducts/fetchMobileProducts",
+// Define async thunks for CRUD operations with search for upcoming products
+export const fetchUpcomingProducts = createAsyncThunk(
+  "upcomingProducts/fetchUpcomingProducts",
   async ({ status, brand, search, page = 1, size = 10 }) => {
     const response = await axios.get(`${BASE_URL}/mobile_product`, {
       params: {
-        status:"complete",
+        status,
         brand,
         search, // Include search in the API request
         page,
@@ -31,39 +31,39 @@ export const fetchMobileProducts = createAsyncThunk(
   }
 );
 
-export const addMobileProduct = createAsyncThunk(
-  "mobileProducts/addMobileProduct",
-  async (mobileProduct) => {
+export const addUpcomingProduct = createAsyncThunk(
+  "upcomingProducts/addUpcomingProduct",
+  async (upcomingProduct) => {
     const response = await axios.post(
       `${BASE_URL}/mobile_product`,
-      mobileProduct
+      upcomingProduct
     );
     return response.data;
   }
 );
 
-export const updateMobileProduct = createAsyncThunk(
-  "mobileProducts/updateMobileProduct",
-  async ({ id, mobileProduct }) => {
+export const updateUpcomingProduct = createAsyncThunk(
+  "upcomingProducts/updateUpcomingProduct",
+  async ({ id, upcomingProduct }) => {
     const response = await axios.put(
       `${BASE_URL}/mobile_product/${id}`,
-      mobileProduct
+      upcomingProduct
     );
     return response.data;
   }
 );
 
-export const deleteMobileProduct = createAsyncThunk(
-  "mobileProducts/deleteMobileProduct",
+export const deleteUpcomingProduct = createAsyncThunk(
+  "upcomingProducts/deleteUpcomingProduct",
   async (id) => {
     await axios.delete(`${BASE_URL}/mobile_product/${id}`);
     return id;
   }
 );
 
-// Create slice
-const mobileProductSlice = createSlice({
-  name: "mobileProducts",
+// Create upcomingSlice
+const upcomingSlice = createSlice({
+  name: "upcomingProducts",
   initialState,
   reducers: {
     setSelectedStatus: (state, action) => {
@@ -85,22 +85,22 @@ const mobileProductSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMobileProducts.pending, (state) => {
+      .addCase(fetchUpcomingProducts.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchMobileProducts.fulfilled, (state, action) => {
+      .addCase(fetchUpcomingProducts.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = action.payload.items; // Assuming the API returns data in { items: [], total: 0 } format
         state.total = action.payload.total;
       })
-      .addCase(fetchMobileProducts.rejected, (state, action) => {
+      .addCase(fetchUpcomingProducts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(addMobileProduct.fulfilled, (state, action) => {
+      .addCase(addUpcomingProduct.fulfilled, (state, action) => {
         state.items.push(action.payload);
       })
-      .addCase(updateMobileProduct.fulfilled, (state, action) => {
+      .addCase(updateUpcomingProduct.fulfilled, (state, action) => {
         const index = state.items.findIndex(
           (item) => item._id === action.payload._id
         );
@@ -108,7 +108,7 @@ const mobileProductSlice = createSlice({
           state.items[index] = action.payload;
         }
       })
-      .addCase(deleteMobileProduct.fulfilled, (state, action) => {
+      .addCase(deleteUpcomingProduct.fulfilled, (state, action) => {
         state.items = state.items.filter((item) => item._id !== action.payload);
       });
   },
@@ -121,5 +121,5 @@ export const {
   setPageSize,
   setSelectedBrands,
   setSearchQuery, // Export setSearchQuery action
-} = mobileProductSlice.actions;
-export default mobileProductSlice.reducer;
+} = upcomingSlice.actions;
+export default upcomingSlice.reducer;

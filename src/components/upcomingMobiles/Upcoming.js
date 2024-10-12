@@ -11,17 +11,18 @@ import {
   Button,
 } from "antd";
 import {
-  fetchMobileProducts,
-  addMobileProduct,
-  updateMobileProduct,
-  deleteMobileProduct,
+  fetchUpcomingProducts, // Use upcoming slice actions
+  addUpcomingProduct,
+  updateUpcomingProduct,
+  deleteUpcomingProduct,
   setSelectedStatus,
   setSelectedBrands,
   setPage,
   setPageSize,
-} from "../../app/slices/mobileProductSlice";
+} from "../../app/slices/upcomingMobilesSlice"; // Change to upcomingSlice
 import moment from "moment";
 import CompleteStatusTable from "./CompleteStatusTable";
+import UnCompleteTable from "./UnCompleteTable";
 import { debounce } from "lodash"; // To debounce the search input
 
 const { Option } = Select;
@@ -37,17 +38,10 @@ const brandOptions = [
   { label: "vivo", value: "vivo" },
 ];
 
-const rivanooStatusOptions = [
-  { label: "Pending", value: "pending" },
-  { label: "Order", value: "order" },
-  { label: "Complete", value: "complete" },
-  { label: "Cancel", value: "cancel" },
-];
-
-const MobileProductTable = () => {
+const Upcoming = () => {
   const dispatch = useDispatch();
   const {
-    items: mobileProducts,
+    items: upcomingProducts, // Update to match upcoming slice
     status,
     error,
     selectedStatus,
@@ -55,13 +49,12 @@ const MobileProductTable = () => {
     currentPage,
     pageSize,
     total,
-  } = useSelector((state) => state.mobileProducts);
+  } = useSelector((state) => state.upcomingProducts); // Update selector for upcomingSlice
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
-  const [rivanooStatus, setRivanooStatus] = useState(""); // State for rivanoo status
 
   // Debounce function for search input
   const handleSearchChange = debounce((value) => {
@@ -71,7 +64,7 @@ const MobileProductTable = () => {
 
   useEffect(() => {
     dispatch(
-      fetchMobileProducts({
+      fetchUpcomingProducts({
         status: selectedStatus,
         brand: selectedBrand,
         page: currentPage,
@@ -99,70 +92,46 @@ const MobileProductTable = () => {
     form.setFieldsValue({
       ...product,
       release_date: product ? moment(product.release_date) : null,
-      rivanoo_status: product ? product.rivanoo_status : null,
-      brand: selectedBrand,
     });
     setIsModalVisible(true);
   };
 
   const handleOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        let formattedValues = {
-          ...values,
-          release_date: values.release_date
-            ? values.release_date.format("YYYY-MM-DD")
-            : null,
-        };
+    form.validateFields().then((values) => {
+      let formattedValues = {
+        ...values,
+        release_date: values.release_date
+          ? values.release_date.format("YYYY-MM-DD")
+          : null,
+      };
 
-        if (editingProduct) {
-   
-
-          // Update product and handle success/error
-          dispatch(
-            updateMobileProduct({
-              id: editingProduct._id,
-              mobileProduct: formattedValues,
-            })
-          )
-            .then(() => {
-              message.success("Mobile product updated successfully!");
-            })
-            .catch((err) => {
-              message.error(`Error updating mobile product: ${err.message}`);
-            });
-        } else {
+      if (editingProduct) {
+        if (values.status === "complete") {
           formattedValues = {
             ...formattedValues,
-            status: "complete", // Set status to "complete" for new product
+            rivanoo_status: "complete",
           };
-
-          // Add product and handle success/error
-          dispatch(addMobileProduct(formattedValues))
-            .then(() => {
-              message.success("Mobile product added successfully!");
-            })
-            .catch((err) => {
-              message.error(`Error adding mobile product: ${err.message}`);
-            });
         }
 
-        form.resetFields(); // Reset form fields
-        setIsModalVisible(false); // Close modal
-      })
-      .catch(() => {
-        message.error("Please fill out all required fields."); // Validation error
-      });
+        dispatch(
+          updateUpcomingProduct({
+            id: editingProduct._id,
+            mobileProduct: formattedValues,
+          })
+        );
+      } else {
+        dispatch(addUpcomingProduct(formattedValues));
+      }
+      setIsModalVisible(false);
+    });
   };
 
   const handleCancel = () => {
-    form.resetFields(); // Reset the form fields
     setIsModalVisible(false);
   };
 
   const handleDelete = (id) => {
-    dispatch(deleteMobileProduct(id));
+    dispatch(deleteUpcomingProduct(id));
   };
 
   const handleStatusChange = (value) => {
@@ -191,15 +160,29 @@ const MobileProductTable = () => {
         onClick={() => showModal()}
         style={{ marginBottom: 16 }}
       >
-        Add Mobile Product
+        Add Upcoming Product
       </Button>
       <Input
-        placeholder="Search in Rivanoo"
+        placeholder="Search by name"
         style={{ marginBottom: 16, width: 300, marginLeft: "10px" }}
         onChange={(e) => handleSearchChange(e.target.value)}
       />
+
       <Select
-        style={{ marginBottom: 16, width: 200, marginLeft: "10px" }}
+        style={{ marginBottom: 16, width: 200, margin: "0px  10px" }}
+        placeholder="Select Status"
+        onChange={handleStatusChange}
+        value={selectedStatus}
+      >
+        <Option value="">All Status</Option>
+        <Option value="coming_soon">Upcoming</Option>
+        <Option value="ordered">Ordered</Option>
+        <Option value="complete">Complete</Option>
+        <Option value="canceled">Canceled</Option>
+      </Select>
+
+      <Select
+        style={{ marginBottom: 16, width: 200 }}
         placeholder="Select Brand"
         onChange={handleBrandChange}
         value={selectedBrand}
@@ -212,10 +195,10 @@ const MobileProductTable = () => {
         ))}
       </Select>
 
-      <CompleteStatusTable
+      <UnCompleteTable
         showModal={showModal}
         handleDelete={handleDelete}
-        mobileProducts={mobileProducts}
+        mobileProducts={upcomingProducts} // Use upcoming products
       />
 
       <Pagination
@@ -228,7 +211,9 @@ const MobileProductTable = () => {
       />
 
       <Modal
-        title={editingProduct ? "Edit Mobile Product" : "Add Mobile Product"}
+        title={
+          editingProduct ? "Edit Upcoming Product" : "Add Upcoming Product"
+        }
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -249,24 +234,35 @@ const MobileProductTable = () => {
           </Form.Item>
 
           <Form.Item
+            name="release_date"
+            label="Release Date"
+            rules={[
+              { required: true, message: "Please select the release date!" },
+            ]}
+          >
+            <DatePicker format="YYYY-MM-DD" />
+          </Form.Item>
+
+          <Form.Item
             name="description"
-            label="Title"
-            rules={[{ required: true, message: "Please input the Title!" }]}
+            label="Description"
+            rules={[
+              { required: true, message: "Please input the description!" },
+            ]}
           >
             <Input />
           </Form.Item>
 
-          <Form.Item name="skallhuset" label="Skallhuset">
-            <Input />
-          </Form.Item>
-
-          <Form.Item name="rivanoo_status" label="Rivanoo Status">
-            <Select placeholder="Select a status">
-              {rivanooStatusOptions.map((status) => (
-                <Option key={status.value} value={status.value}>
-                  {status.label}
-                </Option>
-              ))}
+          <Form.Item
+            name="status"
+            label="Status"
+            rules={[{ required: true, message: "Please select the status!" }]}
+          >
+            <Select>
+              <Option value="coming_soon">Coming Soon</Option>
+              <Option value="ordered">Ordered</Option>
+              <Option value="complete">Complete</Option>
+              <Option value="canceled">Canceled</Option>
             </Select>
           </Form.Item>
         </Form>
@@ -275,4 +271,4 @@ const MobileProductTable = () => {
   );
 };
 
-export default MobileProductTable;
+export default Upcoming;

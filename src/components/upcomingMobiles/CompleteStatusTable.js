@@ -1,21 +1,13 @@
-import { Checkbox, Input, Popconfirm, Table } from "antd";
-import moment from "moment";
-import React, { useState } from "react";
+import { Checkbox, Input, Popconfirm, Table, Tag } from "antd";
+import React, { useState, useEffect } from "react";
 import { FaEdit } from "react-icons/fa";
-import { FcCancel, FcShipped } from "react-icons/fc";
-import { GiSandsOfTime } from "react-icons/gi";
 import { MdDelete } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchMobileProducts,
-  addMobileProduct,
-  updateMobileProduct,
-  deleteMobileProduct,
-  setSelectedStatus,
-  setSelectedBrands,
-  setPage,
-  setPageSize,
-} from "../../app/slices/mobileProductSlice";
+import { useDispatch } from "react-redux";
+import { updateMobileProduct } from "../../app/slices/mobileProductSlice";
+import { GiSandsOfTime } from "react-icons/gi";
+import { FcCancel, FcShipped } from "react-icons/fc";
+import { TiTick } from "react-icons/ti";
+
 export default function CompleteStatusTable({
   showModal,
   handleDelete,
@@ -23,6 +15,12 @@ export default function CompleteStatusTable({
 }) {
   const dispatch = useDispatch();
   const [noteEdits, setNoteEdits] = useState({});
+  const [localProductState, setLocalProductState] = useState([]);
+
+  // Sync localProductState with mobileProducts when mobileProducts change
+  useEffect(() => {
+    setLocalProductState(mobileProducts);
+  }, [mobileProducts]);
 
   const handleNoteChange = (e, recordId) => {
     setNoteEdits({
@@ -41,45 +39,88 @@ export default function CompleteStatusTable({
       );
     }
   };
+
+  const handleCheckboxChange = (e, record, field) => {
+    // Optimistically update the local state
+    const updatedProducts = localProductState.map((product) =>
+      product._id === record._id
+        ? { ...product, [field]: e.target.checked }
+        : product
+    );
+    setLocalProductState(updatedProducts);
+
+    // Dispatch API call to update backend
+    dispatch(
+      updateMobileProduct({
+        id: record._id,
+        mobileProduct: { [field]: e.target.checked },
+      })
+    );
+  };
+
   const columns = [
     { title: "Brand", dataIndex: "brand", key: "brand" },
+    {
+      title: "Rivanoo",
+      dataIndex: "description",
+      key: "description",
+      render: (text, record) =>
+        text === "pending" ? (
+          <Tag color="red">Pending</Tag>
+        ) : (
+          <p style={{ color: "green", fontSize: "600" }}> {text}</p>
+        ),
+    },
+    {
+      title: "Rivanoo Status",
+      dataIndex: "rivanoo_status",
+      key: "rivanoo_status",
+      render: (text, record) => {
+        return (
+          (
+            <div>
+              {text === "order" ? (
+                <FcShipped style={{ fontSize: "25px", color: "orange" }} />
+              ) : null}
+              {text === "complete" ? (
+                <TiTick style={{ fontSize: "25px", color: "green" }} />
+              ) : null}
+              {text === "cancel" ? (
+                <FcCancel style={{ fontSize: "25px", color: "red" }} />
+              ) : null}
+              {text === "pending" ? "Pending" : null}
+            </div>
+          ) || "Unknown"
+        );
+      },
+    },
+    {
+      title: "Skallhuset",
+      key: "skallhuset",
+      dataIndex: "skallhuset",
 
-    { title: "Description", dataIndex: "description", key: "description" },
+      render: (text, record) =>
+        text === "pending" ? <Tag color="red">Pending</Tag> : text,
+    },
     {
       title: "Accessories",
       key: "accessories",
       dataIndex: "accessories",
       render: (text, record) => (
         <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { accessories: e.target.checked },
-              })
-            );
-            console.log(e.target.checked, text);
-          }}
+          checked={record.accessories}
+          onChange={(e) => handleCheckboxChange(e, record, "accessories")}
         />
       ),
     },
-
     {
       title: "Lens Protector",
       key: "lens_protector",
       dataIndex: "lens_protector",
       render: (text, record) => (
         <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { lens_protector: e.target.checked },
-              })
-            );
-          }}
+          checked={record.lens_protector}
+          onChange={(e) => handleCheckboxChange(e, record, "lens_protector")}
         />
       ),
     },
@@ -89,15 +130,8 @@ export default function CompleteStatusTable({
       dataIndex: "screen_protector",
       render: (text, record) => (
         <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { screen_protector: e.target.checked },
-              })
-            );
-          }}
+          checked={record.screen_protector}
+          onChange={(e) => handleCheckboxChange(e, record, "screen_protector")}
         />
       ),
     },
@@ -107,16 +141,8 @@ export default function CompleteStatusTable({
       dataIndex: "tpu_case",
       render: (text, record) => (
         <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { tpu_case: e.target.checked },
-              })
-            );
-            console.log(e.target.checked, text);
-          }}
+          checked={record.tpu_case}
+          onChange={(e) => handleCheckboxChange(e, record, "tpu_case")}
         />
       ),
     },
@@ -126,15 +152,8 @@ export default function CompleteStatusTable({
       dataIndex: "cdon",
       render: (text, record) => (
         <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { cdon: e.target.checked },
-              })
-            );
-          }}
+          checked={record.cdon}
+          onChange={(e) => handleCheckboxChange(e, record, "cdon")}
         />
       ),
     },
@@ -144,15 +163,8 @@ export default function CompleteStatusTable({
       dataIndex: "fyndiq",
       render: (text, record) => (
         <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { fyndiq: e.target.checked },
-              })
-            );
-          }}
+          checked={record.fyndiq}
+          onChange={(e) => handleCheckboxChange(e, record, "fyndiq")}
         />
       ),
     },
@@ -162,34 +174,8 @@ export default function CompleteStatusTable({
       dataIndex: "amazon",
       render: (text, record) => (
         <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { amazon: e.target.checked },
-              })
-            );
-          }}
-        />
-      ),
-    },
-    {
-      title: "Skallhuset",
-      key: "skallhuset",
-      dataIndex: "skallhuset",
-
-      render: (text, record) => (
-        <Checkbox
-          checked={text}
-          onClick={(e) => {
-            dispatch(
-              updateMobileProduct({
-                id: record._id,
-                mobileProduct: { skallhuset: e.target.checked },
-              })
-            );
-          }}
+          checked={record.amazon}
+          onChange={(e) => handleCheckboxChange(e, record, "amazon")}
         />
       ),
     },
@@ -218,10 +204,9 @@ export default function CompleteStatusTable({
             onClick={() => showModal(record)}
             style={{ marginRight: 8 }}
           />
-
           <Popconfirm
             title="Are you sure you want to delete this item?"
-            onConfirm={() => handleDelete(record._id)} // Function to execute when user confirms
+            onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
           >
@@ -231,12 +216,12 @@ export default function CompleteStatusTable({
       ),
     },
   ];
+
   return (
     <Table
       columns={columns}
-      dataSource={mobileProducts}
+      dataSource={localProductState}
       rowKey="_id"
-      // rowClassName={getRowClassName}
       pagination={false} // Disable the built-in pagination
     />
   );
