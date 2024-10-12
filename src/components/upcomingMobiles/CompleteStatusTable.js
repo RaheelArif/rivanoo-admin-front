@@ -146,6 +146,18 @@ export default function CompleteStatusTable({
         />
       ),
     },
+    
+    {
+      title: "Rivanoo",
+      key: "rivanoo",
+      dataIndex: "rivanoo",
+      render: (text, record) => (
+        <Checkbox
+          checked={record.rivanoo}
+          onChange={(e) => handleCheckboxChange(e, record, "rivanoo")}
+        />
+      ),
+    },
     {
       title: "CDON",
       key: "cdon",

@@ -11,7 +11,7 @@ let initialState = {
   selectedBrand: "iphone",
   searchQuery: "", // New state for search
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 30,
 };
 
 // Define async thunks for CRUD operations with search

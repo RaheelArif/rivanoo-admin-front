@@ -29,8 +29,11 @@ const brandOptions = [
   { label: "huawei", value: "huawei" },
   { label: "xiaomi", value: "xiaomi" },
   { label: "iphone", value: "iphone" },
+  { label: "iphone  watch", value: "iphone_watch" },
   { label: "sony", value: "sony" },
   { label: "samsung", value: "samsung" },
+  { label: "samsung tab", value: "samsung_tab" },
+  { label: "samsung watch", value: "samsung_watch" },
   { label: "google", value: "google" },
   { label: "motorola", value: "motorola" },
   { label: "oneplus", value: "oneplus" },
@@ -117,8 +120,15 @@ const MobileProductTable = () => {
         };
 
         if (editingProduct) {
-   
-
+          if (
+            values.rivanoo_status === "complete" &&
+            values.description === "pending"
+          ) {
+            formattedValues = {
+              ...formattedValues,
+              description: values.skallhuset,
+            };
+          }
           // Update product and handle success/error
           dispatch(
             updateMobileProduct({
@@ -148,8 +158,8 @@ const MobileProductTable = () => {
             });
         }
 
-        form.resetFields(); // Reset form fields
-        setIsModalVisible(false); // Close modal
+        // form.resetFields(); // Reset form fields
+        // setIsModalVisible(false); // Close modal
       })
       .catch(() => {
         message.error("Please fill out all required fields."); // Validation error
