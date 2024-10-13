@@ -158,8 +158,8 @@ const MobileProductTable = () => {
             });
         }
 
-        // form.resetFields(); // Reset form fields
-        // setIsModalVisible(false); // Close modal
+        form.resetFields(); // Reset form fields
+        setIsModalVisible(false); // Close modal
       })
       .catch(() => {
         message.error("Please fill out all required fields."); // Validation error
@@ -263,11 +263,11 @@ const MobileProductTable = () => {
             label="Title"
             rules={[{ required: true, message: "Please input the Title!" }]}
           >
-            <Input />
+            <Input allowClear />
           </Form.Item>
 
           <Form.Item name="skallhuset" label="Skallhuset">
-            <Input />
+            <Input allowClear />
           </Form.Item>
 
           <Form.Item name="rivanoo_status" label="Rivanoo Status">

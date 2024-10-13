@@ -103,13 +103,13 @@ export default function CompleteStatusTable({
         text === "pending" ? <Tag color="red">Pending</Tag> : text,
     },
     {
-      title: "Accessories",
-      key: "accessories",
-      dataIndex: "accessories",
+      title: "Privacy",
+      key: "privacy",
+      dataIndex: "privacy",
       render: (text, record) => (
         <Checkbox
-          checked={record.accessories}
-          onChange={(e) => handleCheckboxChange(e, record, "accessories")}
+          checked={record.privacy}
+          onChange={(e) => handleCheckboxChange(e, record, "privacy")}
         />
       ),
     },
