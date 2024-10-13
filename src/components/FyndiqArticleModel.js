@@ -3,6 +3,7 @@ import { Table, Spin, Pagination, Tag, Button } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../utils/appBaseUrl";
 import Papa from "papaparse"; // Import papaparse
+import Highlighter from "react-highlight-words";
 
 const ArticlesTable = () => {
   const [articles, setArticles] = useState([]);
@@ -40,7 +41,14 @@ const ArticlesTable = () => {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      render: (text, record) => record.title?.[0]?.value || "N/A", // Adjust if title is an array of objects
+      render: (text, record) => (
+        <Highlighter
+          highlightClassName="highlight"
+          searchWords={[record.model_name]}
+          autoEscape={true}
+          textToHighlight={record.title?.[0]?.value}
+        />
+      ), // Adjust if title is an array of objects
     },
     {
       title: "Model Name",
@@ -59,7 +67,7 @@ const ArticlesTable = () => {
 
   // Download CSV file
   const downloadCSV = () => {
-    const csvData = articles.map(article => ({
+    const csvData = articles.map((article) => ({
       title: article.title?.[0]?.value || "N/A",
       model_name: article.model_name || "N/A",
       sku: article.sku || "N/A", // Assuming `sku` is the id you want to include
