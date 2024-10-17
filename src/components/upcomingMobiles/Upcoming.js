@@ -24,7 +24,8 @@ import moment from "moment";
 import CompleteStatusTable from "./CompleteStatusTable";
 import UnCompleteTable from "./UnCompleteTable";
 import { debounce } from "lodash"; // To debounce the search input
-
+import { BASE_URL } from "../../utils/appBaseUrl";
+import axios from "axios";
 const { Option } = Select;
 const brandOptions = [
   { label: "huawei", value: "huawei" },
@@ -55,7 +56,7 @@ const Upcoming = () => {
   const [form] = Form.useForm();
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
-
+  const [isStatusComplete, setIsStatusComplete] = useState(false);
   // Debounce function for search input
   const handleSearchChange = debounce((value) => {
     setSearchTerm(value);
@@ -95,36 +96,91 @@ const Upcoming = () => {
     });
     setIsModalVisible(true);
   };
+  const handleStatusChangeComplete = (value) => {
+    if (value === "complete") {
+      setIsStatusComplete(true);
+    } else {
+      setIsStatusComplete(false);
+    }
+  };
 
-  const handleOk = () => {
-    form.validateFields().then((values) => {
+  const handleOk = async () => {
+    try {
+  
+      const values = await form.validateFields();
       let formattedValues = {
         ...values,
         release_date: values.release_date
           ? values.release_date.format("YYYY-MM-DD")
           : null,
       };
-
+  
       if (editingProduct) {
         if (values.status === "complete") {
+          // Add confirmation step
+          if (!window.confirm("Are you sure you want to mark this product as complete?")) {
+
+            return;
+          }
+  
           formattedValues = {
             ...formattedValues,
             rivanoo_status: "complete",
           };
+  
+          try {
+            const response = await axios.get(
+              `${BASE_URL}/mobile_product?brand=${values.brand}&page=1&size=500`
+            );
+            console.log("GET response:", response.data, response.data?.total);
+            formattedValues = {
+              ...formattedValues,
+              row_placement:
+                response.data && typeof response.data.total === 'number' && response.data.total >= 0
+                  ? response.data.total + 1
+                  : 1,
+            };
+          } catch (error) {
+            console.error("Error fetching mobile product data:", error);
+            formattedValues.row_placement = 1;
+            // Show error message to user
+            message.error("Failed to fetch product data. Using default row placement.");
+          }
         }
-
-        dispatch(
-          updateUpcomingProduct({
-            id: editingProduct._id,
-            mobileProduct: formattedValues,
-          })
-        );
+  
+        // Use the most up-to-date formattedValues here
+        try {
+          await dispatch(
+            updateUpcomingProduct({
+              id: editingProduct._id,
+              mobileProduct: formattedValues, // This now contains all updated values
+            })
+          );
+          message.success("Product updated successfully");
+        } catch (error) {
+          console.error("Error updating product:", error);
+          message.error("Failed to update product. Please try again.");
+          return; // Don't close modal if update failed
+        }
       } else {
-        dispatch(addUpcomingProduct(formattedValues));
+        try {
+          await dispatch(addUpcomingProduct(formattedValues));
+          message.success("Product added successfully");
+        } catch (error) {
+          console.error("Error adding product:", error);
+          message.error("Failed to add product. Please try again.");
+          return; // Don't close modal if add failed
+        }
       }
       setIsModalVisible(false);
-    });
+    } catch (validationError) {
+      console.error("Form validation failed:", validationError);
+      message.error("Please fill in all required fields correctly.");
+    } finally {
+     
+    }
   };
+
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -258,7 +314,7 @@ const Upcoming = () => {
             label="Status"
             rules={[{ required: true, message: "Please select the status!" }]}
           >
-            <Select>
+            <Select onSelect={handleStatusChangeComplete}>
               <Option value="coming_soon">Coming Soon</Option>
               <Option value="ordered">Ordered</Option>
               <Option value="complete">Complete</Option>

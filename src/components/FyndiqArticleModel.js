@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Table, Spin, Pagination, Tag, Button } from "antd";
+import { Table, Spin, Pagination, Tag, Button, Typography } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../utils/appBaseUrl";
 import Papa from "papaparse"; // Import papaparse
 import Highlighter from "react-highlight-words";
-
+const { Paragraph } = Typography;
 const ArticlesTable = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +56,14 @@ const ArticlesTable = () => {
       key: "model_name",
       render: (text, record) => (
         <Tag color={text === "Unknown Model" ? "red" : "blue"}>{text}</Tag>
+      ), // Adjust if title is an array of objects
+    },
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      render: (text, record) => (
+        <Paragraph copyable={{ text: text.toString() }}>{text}</Paragraph>
       ), // Adjust if title is an array of objects
     },
   ];

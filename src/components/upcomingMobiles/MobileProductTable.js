@@ -214,7 +214,7 @@ const MobileProductTable = () => {
         onChange={handleBrandChange}
         value={selectedBrand}
       >
-        <Option value="">All Brand</Option>
+        {/* <Option value="">All Brand</Option> */}
         {brandOptions.map((b) => (
           <Option key={b.value} value={b.value}>
             {b.label}
