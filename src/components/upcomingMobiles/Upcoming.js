@@ -104,84 +104,6 @@ const Upcoming = () => {
     }
   };
 
-  const handleOk = async () => {
-    try {
-  
-      const values = await form.validateFields();
-      let formattedValues = {
-        ...values,
-        release_date: values.release_date
-          ? values.release_date.format("YYYY-MM-DD")
-          : null,
-      };
-  
-      if (editingProduct) {
-        if (values.status === "complete") {
-          // Add confirmation step
-          if (!window.confirm("Are you sure you want to mark this product as complete?")) {
-
-            return;
-          }
-  
-          formattedValues = {
-            ...formattedValues,
-            rivanoo_status: "complete",
-          };
-  
-          try {
-            const response = await axios.get(
-              `${BASE_URL}/mobile_product?brand=${values.brand}&page=1&size=500`
-            );
-            console.log("GET response:", response.data, response.data?.total);
-            formattedValues = {
-              ...formattedValues,
-              row_placement:
-                response.data && typeof response.data.total === 'number' && response.data.total >= 0
-                  ? response.data.total + 1
-                  : 1,
-            };
-          } catch (error) {
-            console.error("Error fetching mobile product data:", error);
-            formattedValues.row_placement = 1;
-            // Show error message to user
-            message.error("Failed to fetch product data. Using default row placement.");
-          }
-        }
-  
-        // Use the most up-to-date formattedValues here
-        try {
-          await dispatch(
-            updateUpcomingProduct({
-              id: editingProduct._id,
-              mobileProduct: formattedValues, // This now contains all updated values
-            })
-          );
-          message.success("Product updated successfully");
-        } catch (error) {
-          console.error("Error updating product:", error);
-          message.error("Failed to update product. Please try again.");
-          return; // Don't close modal if update failed
-        }
-      } else {
-        try {
-          await dispatch(addUpcomingProduct(formattedValues));
-          message.success("Product added successfully");
-        } catch (error) {
-          console.error("Error adding product:", error);
-          message.error("Failed to add product. Please try again.");
-          return; // Don't close modal if add failed
-        }
-      }
-      setIsModalVisible(false);
-    } catch (validationError) {
-      console.error("Form validation failed:", validationError);
-      message.error("Please fill in all required fields correctly.");
-    } finally {
-     
-    }
-  };
-
-
   const handleCancel = () => {
     setIsModalVisible(false);
   };
@@ -208,7 +130,95 @@ const Upcoming = () => {
     dispatch(setPageSize(size));
     dispatch(setPage(1)); // Reset to the first page when page size changes
   };
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      let formattedValues = {
+        ...values,
+        release_date: values.release_date
+          ? values.release_date.format("YYYY-MM-DD")
+          : null,
+      };
 
+      if (editingProduct) {
+        if (values.status === "complete") {
+          if (
+            !window.confirm(
+              "Are you sure you want to mark this product as complete?"
+            )
+          ) {
+            return;
+          }
+
+          formattedValues = {
+            ...formattedValues,
+            rivanoo_status: "complete",
+          };
+
+          try {
+            const response = await axios.get(
+              `${BASE_URL}/mobile_product?brand=${values.brand}&page=1&size=500`
+            );
+            console.log("GET response:", response.data, response.data?.total);
+            formattedValues = {
+              ...formattedValues,
+              row_placement:
+                response.data &&
+                typeof response.data.total === "number" &&
+                response.data.total >= 0
+                  ? response.data.total + 1
+                  : 1,
+            };
+          } catch (error) {
+            console.error("Error fetching mobile product data:", error);
+            formattedValues.row_placement = 1;
+            message.error(
+              "Failed to fetch product data. Using default row placement."
+            );
+          }
+        }
+
+        try {
+          console.log("Updating product with data:", formattedValues);
+
+          // Create a new object with only the fields that have changed
+          const updatedFields = {};
+          Object.keys(formattedValues).forEach((key) => {
+            if (formattedValues[key] !== editingProduct[key]) {
+              updatedFields[key] = formattedValues[key];
+            }
+          });
+
+          console.log("Fields to update:", updatedFields);
+
+          await dispatch(
+            updateUpcomingProduct({
+              id: editingProduct._id,
+              mobileProduct: updatedFields, // Only send fields that have changed
+            })
+          );
+          message.success("Product updated successfully");
+        } catch (error) {
+          console.error("Error updating product:", error);
+          message.error("Failed to update product. Please try again.");
+          return;
+        }
+      } else {
+        try {
+          await dispatch(addUpcomingProduct(formattedValues));
+          message.success("Product added successfully");
+        } catch (error) {
+          console.error("Error adding product:", error);
+          message.error("Failed to add product. Please try again.");
+          return;
+        }
+      }
+      setIsModalVisible(false);
+    } catch (validationError) {
+      console.error("Form validation failed:", validationError);
+      message.error("Please fill in all required fields correctly.");
+    }
+  };
   return (
     <>
       <Button
