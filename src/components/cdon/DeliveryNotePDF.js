@@ -149,7 +149,7 @@ const DeliveryNotePDF = ({ order }) => {
                 {/* Products table */}
                 <View style={[styles.tableHeader, { marginTop: 20 }]}>
                     <Text style={[styles.columnHeader, styles.varunr]}>Varunr.</Text>
-                    <Text style={[styles.columnHeader, styles.ean]}>EAN/IMEI</Text>
+                    {/* <Text style={[styles.columnHeader, styles.ean]}>EAN/IMEI</Text> */}
                     <Text style={[styles.columnHeader, styles.produkt]}>Produkt</Text>
                     <Text style={[styles.columnHeader, styles.plockplats]}>Plockplats</Text>
                     <Text style={[styles.columnHeader, styles.antal]}>Antal</Text>
@@ -157,7 +157,7 @@ const DeliveryNotePDF = ({ order }) => {
                 {OrderRows.map((row, index) => (
                     <View key={index} style={styles.tableRow}>
                         <Text style={[styles.columnCell, styles.varunr]}>{row.ProductId}</Text>
-                        <Text style={[styles.columnCell, styles.ean]}>{row.Gtin}</Text>
+                        {/* <Text style={[styles.columnCell, styles.ean]}>{row.Gtin}</Text> */}
                         <Text style={[styles.columnCell, styles.produkt]}>{row.ProductName}</Text>
                         <Text style={[styles.columnCell, styles.plockplats]}></Text>
                         <Text style={[styles.columnCell, styles.antal]}>{row.Quantity}</Text>
