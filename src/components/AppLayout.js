@@ -23,6 +23,7 @@ import FyndiqArtcileModel from "./FyndiqArticleModel";
 import Upcoming from "./upcomingMobiles/Upcoming";
 import FyndiqOrdersTable from "./FyndiqOrders";
 import KaulfandOders from "./kaulfand/KaulfandOders";
+import CdonOrders from "./cdon/CdonOrders";
 const { Header, Sider, Content } = Layout;
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -123,6 +124,11 @@ const AppLayout = () => {
               icon: <UserOutlined />,
               label: "Kaulfand",
             },
+            {
+              key: "17",
+              icon: <UserOutlined />,
+              label: "CDON",
+            },
           ]}
           onClick={(v) => setSelected(v?.key)}
         />
@@ -175,6 +181,7 @@ const AppLayout = () => {
           {selected === "14" ? <Upcoming /> : null}
           {selected === "15" ? <FyndiqOrdersTable /> : null}
           {selected === "16" ? <KaulfandOders /> : null}
+          {selected === "17" ? <CdonOrders /> : null}
 
           {/* {selected === "2" ? <OrdersTable />: null} */}
         </Content>
